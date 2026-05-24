@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Television Love — Of Monsters and Men Playlist Guide</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Instrument+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0c0b0f;
+    --bg-card: #16141c;
+    --bg-card-hover: #1e1b27;
+    --accent: #c9a96e;
+    --accent-dim: #8b7545;
+    --text: #e8e4dc;
+    --text-dim: #8a8580;
+    --text-mid: #b5b0a8;
+    --border: #2a2632;
+    --border-light: #3a3545;
+    --shadow: rgba(0,0,0,0.4);
+    --gradient-warm: linear-gradient(135deg, #c9a96e 0%, #a17c3e 100%);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Instrument Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Ambient background */
+  body::before {
+    content: '';
+    position: fixed;
+    top: -40%; left: -20%;
+    width: 140%; height: 140%;
+    background:
+      radial-gradient(ellipse at 20% 20%, rgba(201,169,110,0.06) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(120,90,50,0.04) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 50%, rgba(30,20,40,0.3) 0%, transparent 70%);
+    z-index: 0;
+    pointer-events: none;
+  }
+
+  .container {
+    position: relative;
+    z-index: 1;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* Header */
+  .header {
+    text-align: center;
+    margin-bottom: 48px;
+    padding-bottom: 40px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .header-label {
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 16px;
+    font-weight: 600;
+  }
+
+  .header h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(32px, 6vw, 52px);
+    font-weight: 400;
+    color: var(--text);
+    line-height: 1.15;
+    margin-bottom: 8px;
+  }
+
+  .header h1 em {
+    color: var(--accent);
+    font-style: italic;
+  }
+
+  .header-artist {
+    font-size: 15px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-top: 10px;
+  }
+
+  .header-artist a {
+    color: var(--accent-dim);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+
+  .header-artist a:hover { color: var(--accent); }
+
+  .header-meta {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 16px;
+    font-size: 12px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  .header-meta span::before {
+    content: '◆';
+    margin-right: 8px;
+    color: var(--accent-dim);
+    font-size: 6px;
+    vertical-align: middle;
+  }
+
+  /* Selector */
+  .selector-wrap {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(12,11,15,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    padding: 16px 0;
+    margin-bottom: 32px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .selector-label {
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+
+  .selector {
+    width: 100%;
+    padding: 14px 18px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border-light);
+    border-radius: 10px;
+    cursor: pointer;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%238a8580' viewBox='0 0 16 16'%3E%3Cpath d='M4.5 6l3.5 4 3.5-4z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    background-size: 16px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  .selector:hover {
+    border-color: var(--accent-dim);
+  }
+
+  .selector:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(201,169,110,0.15);
+  }
+
+  /* Song cards */
+  .song-card {
+    display: none;
+    animation: cardIn 0.4s ease-out;
+  }
+
+  .song-card.active { display: block; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .song-number {
+    font-family: 'DM Serif Display', serif;
+    font-size: 64px;
+    color: var(--border);
+    line-height: 1;
+    margin-bottom: -8px;
+  }
+
+  .song-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(26px, 5vw, 36px);
+    font-weight: 400;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.2;
+  }
+
+  .song-album {
+    font-size: 13px;
+    color: var(--accent-dim);
+    letter-spacing: 0.5px;
+    margin-bottom: 24px;
+  }
+
+  .song-album a {
+    color: var(--accent-dim);
+    text-decoration: none;
+    border-bottom: 1px dotted var(--accent-dim);
+    transition: color 0.2s;
+  }
+
+  .song-album a:hover { color: var(--accent); }
+
+  .divider {
+    width: 48px;
+    height: 1px;
+    background: var(--accent-dim);
+    margin-bottom: 24px;
+  }
+
+  /* Info grid */
+  .info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 16px;
+    margin-bottom: 28px;
+  }
+
+  .info-item {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: border-color 0.2s;
+  }
+
+  .info-item:hover { border-color: var(--border-light); }
+
+  .info-label {
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+
+  .info-value {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* Description */
+  .song-description {
+    font-size: 15px;
+    line-height: 1.75;
+    color: var(--text-mid);
+    margin-bottom: 28px;
+  }
+
+  /* Links */
+  .links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .link-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 20px;
+    font-family: 'Instrument Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all 0.25s ease;
+  }
+
+  .link-btn.primary {
+    background: var(--gradient-warm);
+    color: #0c0b0f;
+  }
+
+  .link-btn.primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 20px rgba(201,169,110,0.25);
+  }
+
+  .link-btn.secondary {
+    background: var(--bg-card);
+    color: var(--text-mid);
+    border: 1px solid var(--border-light);
+  }
+
+  .link-btn.secondary:hover {
+    border-color: var(--accent-dim);
+    color: var(--text);
+  }
+
+  .link-icon {
+    width: 16px;
+    height: 16px;
+  }
+
+  /* Footer */
+  .footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    text-align: center;
+    font-size: 11px;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    line-height: 1.8;
+  }
+
+  .footer a {
+    color: var(--accent-dim);
+    text-decoration: none;
+  }
+
+  .footer a:hover { color: var(--accent); }
+
+  /* Responsive */
+  @media (max-width: 480px) {
+    .container { padding: 24px 16px 60px; }
+    .info-grid { grid-template-columns: 1fr 1fr; }
+    .links { flex-direction: column; }
+    .link-btn { justify-content: center; }
+    .header-meta { flex-direction: column; gap: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-label">Playlist Guide</div>
+    <h1><em>Television Love</em></h1>
+    <div class="header-artist">
+      <a href="https://open.spotify.com/artist/4dwdTW1Lfiq0cM8nBAqIIz" target="_blank" rel="noopener">Of Monsters and Men</a>
+    </div>
+    <div class="header-meta">
+      <span>18 Songs</span>
+      <span>4 Albums + Single</span>
+      <span>Indie Folk / Rock</span>
+    </div>
+  </div>
+
+  <div class="selector-wrap">
+    <div class="selector-label">Select a song</div>
+    <select class="selector" id="songSelector" onchange="showSong(this.value)">
+      <option value="1">01 — The Towering Skyscraper at the End of the Road</option>
+      <option value="2">02 — The Actor</option>
+      <option value="3">03 — The Block</option>
+      <option value="4">04 — Dirty Paws</option>
+      <option value="5">05 — Crystals</option>
+      <option value="6">06 — Ordinary Creature</option>
+      <option value="7">07 — Styrofoam Cathedral</option>
+      <option value="8">08 — Television Love</option>
+      <option value="9">09 — Dream Team</option>
+      <option value="10">10 — King And Lionheart</option>
+      <option value="11">11 — Tuna in a Can</option>
+      <option value="12">12 — Empire</option>
+      <option value="13">13 — Alligator</option>
+      <option value="14">14 — From Finner</option>
+      <option value="15">15 — Little Talks</option>
+      <option value="16">16 — Visitor</option>
+      <option value="17">17 — Love Love Love</option>
+      <option value="18">18 — Fruit Bat</option>
+    </select>
+  </div>
+
+  <!-- 01 The Towering Skyscraper at the End of the Road -->
+  <div class="song-card active" id="song-1">
+    <div class="song-number">01</div>
+    <div class="song-title">The Towering Skyscraper at the End of the Road</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:34</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">8 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">A sweeping, atmospheric track from the band's fourth album. The title evokes grand, surreal imagery—hallmarks of the album's poetic storytelling and Icelandic mysticism.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-the-towering-skyscraper-at-the-end-of-the-road-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/The%20Towering%20Skyscraper%20at%20the%20End%20of%20the%20Road%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 02 The Actor -->
+  <div class="song-card" id="song-2">
+    <div class="song-number">02</div>
+    <div class="song-title">The Actor</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:33</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">3 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">An introspective piece exploring identity and performance. The song weaves between quiet reflection and soaring instrumentation, characteristic of the band's atmospheric folk-rock sound.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-the-actor-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/The%20Actor%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 03 The Block -->
+  <div class="song-card" id="song-3">
+    <div class="song-number">03</div>
+    <div class="song-title">The Block</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:26</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">11 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">A textured, layered track nestled near the end of the album. The Block contributes to the album's themes of belonging and displacement through lush folk-rock arrangements.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-the-block-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/The%20Block%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 04 Dirty Paws -->
+  <div class="song-card" id="song-4">
+    <div class="song-number">04</div>
+    <div class="song-title">Dirty Paws</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4p9dVvZDaZliSjTCbFRhJy" target="_blank" rel="noopener">My Head Is an Animal</a> (2011)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:38</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">1 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2011</div></div>
+    </div>
+    <div class="song-description">The album opener that gave My Head Is an Animal its name. A folk epic that tells a fable-like story of a war among animals, featuring lush instrumentation and the band's signature dual vocals. Featured in the film The Secret Life of Walter Mitty.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-dirty-paws-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Dirty%20Paws%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 05 Crystals -->
+  <div class="song-card" id="song-5">
+    <div class="song-number">05</div>
+    <div class="song-title">Crystals</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/1GXnXmR58zSGfXOOtVP5Yy" target="_blank" rel="noopener">Beneath the Skin</a> (2015)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:02</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">1 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2015</div></div>
+    </div>
+    <div class="song-description">The lead single from Beneath the Skin, opening the album with driving rhythms and an anthemic chorus. The artwork was created by artistic director Leif Podhajsky.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-crystals-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Crystals%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 06 Ordinary Creature -->
+  <div class="song-card" id="song-6">
+    <div class="song-number">06</div>
+    <div class="song-title">Ordinary Creature</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:40</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">9 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">Released as the second single from All Is Love and Pain in the Mouse Parade. A tender exploration of vulnerability and connection, wrapped in atmospheric folk-rock production.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-ordinary-creature-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Ordinary%20Creature%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 07 Styrofoam Cathedral -->
+  <div class="song-card" id="song-7">
+    <div class="song-number">07</div>
+    <div class="song-title">Styrofoam Cathedral</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:53</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">10 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">The evocative title conjures images of fragile grandeur — a structure both imposing and delicate. Part of the album's tapestry of surreal, poetic storytelling.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-styrofoam-cathedral-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Styrofoam%20Cathedral%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 08 Television Love -->
+  <div class="song-card" id="song-8">
+    <div class="song-number">08</div>
+    <div class="song-title">Television Love</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:40</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">1 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">The album opener and lead single from All Is Love and Pain in the Mouse Parade, released on 1 July 2025. This is also the namesake of your playlist — a warm, inviting entry point into the band's most introspective record.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-television-love-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Television%20Love%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 09 Dream Team -->
+  <div class="song-card" id="song-9">
+    <div class="song-number">09</div>
+    <div class="song-title">Dream Team</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:08</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">2 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">A compact, energetic track that follows the album opener. Dream Team captures the interplay between Nanna and Ragnar's voices over propulsive indie-folk arrangements.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-dream-team-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Dream%20Team%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 10 King And Lionheart -->
+  <div class="song-card" id="song-10">
+    <div class="song-number">10</div>
+    <div class="song-title">King And Lionheart</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4p9dVvZDaZliSjTCbFRhJy" target="_blank" rel="noopener">My Head Is an Animal</a> (2011)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:34</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">2 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2011</div></div>
+    </div>
+    <div class="song-description">Written by Nanna Bryndís Hilmarsdóttir and released as the fourth single from My Head Is an Animal. A beloved anthem about bravery, loyalty, and facing the world together with someone you love.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-king-and-lionheart-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/King%20And%20Lionheart%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 11 Tuna in a Can -->
+  <div class="song-card" id="song-11">
+    <div class="song-number">11</div>
+    <div class="song-title">Tuna in a Can</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:06</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">4 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">A playfully titled track that belies deeper emotional content. At just over three minutes, it's one of the more concise offerings on the album, packing imagery and feeling into a tight arrangement.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-tuna-in-a-can-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Tuna%20in%20a%20Can%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 12 Empire -->
+  <div class="song-card" id="song-12">
+    <div class="song-number">12</div>
+    <div class="song-title">Empire</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/1GXnXmR58zSGfXOOtVP5Yy" target="_blank" rel="noopener">Beneath the Skin</a> (2015)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:20</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">Single</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2015</div></div>
+    </div>
+    <div class="song-description">Released as the third single from Beneath the Skin. Written by Nanna, Ragnar, and Arnar, Empire builds with cinematic intensity — a sweeping, emotionally charged piece about power and vulnerability.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-empire-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Empire%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 13 Alligator -->
+  <div class="song-card" id="song-13">
+    <div class="song-number">13</div>
+    <div class="song-title">Alligator</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4sLtOBOzn4s3GDUv3c5oJa" target="_blank" rel="noopener">Fever Dream</a> (2019)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:04</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">1 of 11</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2019</div></div>
+    </div>
+    <div class="song-description">The lead single and explosive opener of Fever Dream. A marked departure from the band's folkier roots, featuring driving punk-rock energy and electronic textures. Performed on The Tonight Show, Jimmy Kimmel Live, and Ellen.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-alligator-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Alligator%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 14 From Finner -->
+  <div class="song-card" id="song-14">
+    <div class="song-number">14</div>
+    <div class="song-title">From Finner</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4p9dVvZDaZliSjTCbFRhJy" target="_blank" rel="noopener">My Head Is an Animal</a> (2011)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:43</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">5 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2011</div></div>
+    </div>
+    <div class="song-description">A deep cut from the debut album, nestled between the band's bigger singles. From Finner showcases the band's storytelling gifts with a more intimate, mid-tempo arrangement.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-from-finner-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/From%20Finner%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 15 Little Talks -->
+  <div class="song-card" id="song-15">
+    <div class="song-number">15</div>
+    <div class="song-title">Little Talks</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4p9dVvZDaZliSjTCbFRhJy" target="_blank" rel="noopener">My Head Is an Animal</a> (2011)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">4:26</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">6 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2011</div></div>
+    </div>
+    <div class="song-description">The debut single that launched Of Monsters and Men to worldwide fame. Certified 7× Platinum in the US and reaching the top 20 on the Billboard Hot 100, it remains the band's most recognizable song — a joyous, trumpet-driven anthem about two people navigating life's uncertainties together.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-little-talks-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Little%20Talks%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 16 Visitor -->
+  <div class="song-card" id="song-16">
+    <div class="song-number">16</div>
+    <div class="song-title">Visitor</div>
+    <div class="song-album"><a href="https://open.spotify.com/search/Visitor%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">Standalone Single</a> (2020)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:27</div></div>
+      <div class="info-item"><div class="info-label">Released</div><div class="info-value">Sep 9, 2020</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Chart Peak</div><div class="info-value">#1 AAA</div></div>
+    </div>
+    <div class="song-description">A standalone single released between Fever Dream and the fourth album. Described by Nanna as a song about disconnection and finding yourself in the role of the visitor. It reached #1 on the Adult Alternative Airplay chart — the band's fifth chart-topper there.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-visitor-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Visitor%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 17 Love Love Love -->
+  <div class="song-card" id="song-17">
+    <div class="song-number">17</div>
+    <div class="song-title">Love Love Love</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/4p9dVvZDaZliSjTCbFRhJy" target="_blank" rel="noopener">My Head Is an Animal</a> (2011)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">3:55</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">8 of 12</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Republic</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2011</div></div>
+    </div>
+    <div class="song-description">A fan-favorite deep cut from My Head Is an Animal. Love Love Love strips back the bigger arrangements in favour of a gentler, more reflective mood — one of the album's quieter emotional highlights.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-love-love-love-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Love%20Love%20Love%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <!-- 18 Fruit Bat -->
+  <div class="song-card" id="song-18">
+    <div class="song-number">18</div>
+    <div class="song-title">Fruit Bat</div>
+    <div class="song-album">From <a href="https://open.spotify.com/album/2HcknIcvfdGJdUGPjlK3cW" target="_blank" rel="noopener">All Is Love and Pain in the Mouse Parade</a> (2025)</div>
+    <div class="divider"></div>
+    <div class="info-grid">
+      <div class="info-item"><div class="info-label">Duration</div><div class="info-value">8:17</div></div>
+      <div class="info-item"><div class="info-label">Track No.</div><div class="info-value">6 of 13</div></div>
+      <div class="info-item"><div class="info-label">Label</div><div class="info-value">Skarkali</div></div>
+      <div class="info-item"><div class="info-label">Year</div><div class="info-value">2025</div></div>
+    </div>
+    <div class="song-description">The longest track on All Is Love and Pain in the Mouse Parade at over eight minutes. Fruit Bat is an expansive, slow-building journey — a sprawling centerpiece that gives the album its emotional weight and atmospheric depth.</div>
+    <div class="links">
+      <a class="link-btn primary" href="https://genius.com/Of-monsters-and-men-fruit-bat-lyrics" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18v18H3V3zm3 3v12h12V6H6zm2 2h8v2H8V8zm0 4h8v2H8v-2zm0 4h5v2H8v-2z"/></svg>
+        Read Lyrics on Genius
+      </a>
+      <a class="link-btn secondary" href="https://open.spotify.com/search/Fruit%20Bat%20Of%20Monsters%20and%20Men" target="_blank" rel="noopener">
+        <svg class="link-icon" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/><path d="M8 15s2-1 4-1 4 1 4 1M7 12s2.5-1.5 5-1.5 5 1.5 5 1.5M6.5 9S9.5 7 12 7s5.5 2 5.5 2" stroke="#0c0b0f" stroke-width="1.5" fill="none" stroke-linecap="round"/></svg>
+        Play on Spotify
+      </a>
+    </div>
+  </div>
+
+  <div class="footer">
+    Television Love — A playlist guide for Of Monsters and Men<br>
+    Lyrics hosted on <a href="https://genius.com/artists/Of-monsters-and-men" target="_blank" rel="noopener">Genius</a> · 
+    Listen on <a href="https://open.spotify.com/playlist/4GgNt1hgByWxQ28qpGlS5E" target="_blank" rel="noopener">Spotify</a>
+  </div>
+
+</div>
+
+<script>
+  function showSong(id) {
+    document.querySelectorAll('.song-card').forEach(card => card.classList.remove('active'));
+    const target = document.getElementById('song-' + id);
+    if (target) {
+      target.classList.add('active');
+      // Smooth scroll to card
+      setTimeout(() => {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 50);
+    }
+  }
+
+  // Keyboard navigation
+  document.addEventListener('keydown', (e) => {
+    const sel = document.getElementById('songSelector');
+    const idx = sel.selectedIndex;
+    if (e.key === 'ArrowDown' && idx < sel.options.length - 1) {
+      e.preventDefault();
+      sel.selectedIndex = idx + 1;
+      showSong(sel.value);
+    } else if (e.key === 'ArrowUp' && idx > 0) {
+      e.preventDefault();
+      sel.selectedIndex = idx - 1;
+      showSong(sel.value);
+    }
+  });
+</script>
+
+</body>
+</html>
