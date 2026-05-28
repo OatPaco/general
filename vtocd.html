@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Visual Tourettic OCD — Evidence-Based Self-Help & Medications</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg-card: #141414;
+    --bg-card-hover: #1a1a1a;
+    --accent: #f0c040;
+    --accent-dim: #f0c04020;
+    --accent-glow: #f0c04040;
+    --teal: #2dd4bf;
+    --teal-dim: #2dd4bf15;
+    --rose: #fb7185;
+    --rose-dim: #fb718520;
+    --lavender: #a78bfa;
+    --lavender-dim: #a78bfa18;
+    --text: #e8e4de;
+    --text-muted: #8a8580;
+    --text-dim: #5a5550;
+    --border: #2a2520;
+    --border-accent: #f0c04030;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Libre Baskerville', 'Times New Roman', Times, serif;
+    font-size: 17px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+
+  /* ——— Grain overlay ——— */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ——— Hero ——— */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding: 4rem 2rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 800px;
+    height: 800px;
+    background: radial-gradient(circle, var(--accent-glow) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-badge {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    border: 1px solid var(--border-accent);
+    padding: 0.4em 1.2em;
+    border-radius: 100px;
+    margin-bottom: 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    font-weight: 900;
+    line-height: 1.1;
+    max-width: 14ch;
+    color: #fff;
+    animation: fadeUp 0.8s 0.15s ease both;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--accent);
+  }
+
+  .hero-sub {
+    margin-top: 1.5rem;
+    font-size: 1.15rem;
+    color: var(--text-muted);
+    max-width: 52ch;
+    animation: fadeUp 0.8s 0.3s ease both;
+  }
+
+  .scroll-hint {
+    margin-top: 3rem;
+    animation: fadeUp 0.8s 0.5s ease both, bounce 2s 1.5s ease-in-out infinite;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+  }
+
+  .scroll-hint span {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 1.4rem;
+  }
+
+  /* ——— Nav dots ——— */
+  .side-nav {
+    position: fixed;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .side-nav a {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-dim);
+    transition: all 0.3s;
+    display: block;
+  }
+
+  .side-nav a:hover,
+  .side-nav a.active {
+    background: var(--accent);
+    transform: scale(1.4);
+    box-shadow: 0 0 12px var(--accent-glow);
+  }
+
+  /* ——— TL;DR card ——— */
+  .tldr {
+    max-width: 900px;
+    margin: 0 auto 6rem;
+    padding: 0 2rem;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .tldr-card {
+    background: linear-gradient(135deg, var(--bg-card) 0%, #1c1815 100%);
+    border: 1px solid var(--border-accent);
+    border-radius: 20px;
+    padding: 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .tldr-card::before {
+    content: 'TL;DR';
+    position: absolute;
+    top: -0.3rem;
+    right: 2rem;
+    font-family: 'Playfair Display', serif;
+    font-size: 6rem;
+    font-weight: 900;
+    color: var(--accent-dim);
+    pointer-events: none;
+  }
+
+  .tldr-card p {
+    position: relative;
+    z-index: 1;
+    margin-bottom: 1rem;
+    color: var(--text);
+  }
+
+  .tldr-card p:last-child { margin-bottom: 0; }
+
+  .tldr-card strong { color: var(--accent); font-weight: 700; }
+
+  .highlight-box {
+    margin-top: 1.5rem;
+    padding: 1.2rem 1.5rem;
+    background: var(--accent-dim);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 12px 12px 0;
+    font-style: italic;
+    color: #fff;
+  }
+
+  /* ——— Sections ——— */
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 2rem 6rem;
+  }
+
+  section {
+    margin-bottom: 5rem;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  section.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--teal);
+    margin-bottom: 0.75rem;
+  }
+
+  h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 4vw, 2.5rem);
+    font-weight: 900;
+    color: #fff;
+    margin-bottom: 1.5rem;
+    line-height: 1.2;
+  }
+
+  h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--accent);
+    margin: 2.5rem 0 1rem;
+    padding-left: 1rem;
+    border-left: 2px solid var(--accent);
+  }
+
+  p { margin-bottom: 1rem; }
+
+  /* ——— Key findings numbered cards ——— */
+  .finding-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    position: relative;
+    transition: border-color 0.3s, background 0.3s;
+  }
+
+  .finding-card:hover {
+    border-color: var(--accent);
+    background: var(--bg-card-hover);
+  }
+
+  .finding-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 3rem;
+    font-weight: 900;
+    color: var(--accent-dim);
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    line-height: 1;
+  }
+
+  .finding-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    padding-right: 3rem;
+  }
+
+  .finding-card p {
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  /* ——— Pattern list ——— */
+  .patterns {
+    display: grid;
+    gap: 1rem;
+    margin: 1.5rem 0;
+  }
+
+  .pattern-item {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    padding: 1.2rem 1.5rem;
+    background: var(--bg-card);
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    transition: border-color 0.3s;
+  }
+
+  .pattern-item:hover { border-color: var(--lavender); }
+
+  .pattern-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--lavender);
+    flex-shrink: 0;
+    width: 2rem;
+    text-align: center;
+  }
+
+  /* ——— Strategy cards ——— */
+  .strategy-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 1.5rem;
+    transition: border-color 0.3s, transform 0.2s;
+  }
+
+  .strategy-card:hover {
+    border-color: var(--teal);
+    transform: translateY(-2px);
+  }
+
+  .strategy-letter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.2rem;
+    height: 2.2rem;
+    background: var(--teal-dim);
+    border: 1px solid var(--teal);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--teal);
+    margin-bottom: 1rem;
+  }
+
+  .strategy-card h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    color: #fff;
+    margin-bottom: 0.75rem;
+  }
+
+  .strategy-card ul {
+    list-style: none;
+    padding: 0;
+  }
+
+  .strategy-card li {
+    padding: 0.4rem 0 0.4rem 1.5rem;
+    position: relative;
+    color: var(--text-muted);
+  }
+
+  .strategy-card li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    color: var(--teal);
+  }
+
+  /* ——— Don't list ——— */
+  .dont-list {
+    list-style: none;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .dont-list li {
+    padding: 1rem 1.2rem 1rem 3rem;
+    background: var(--rose-dim);
+    border: 1px solid #fb718530;
+    border-radius: 12px;
+    position: relative;
+    color: var(--text);
+  }
+
+  .dont-list li::before {
+    content: '✕';
+    position: absolute;
+    left: 1.2rem;
+    color: var(--rose);
+    font-weight: 700;
+  }
+
+  /* ——— Meds table ——— */
+  .med-table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+  }
+
+  thead {
+    background: var(--bg-card);
+  }
+
+  th {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--accent);
+    text-align: left;
+    padding: 1rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  td {
+    padding: 0.9rem 1.2rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: none; }
+
+  tr:hover td { background: var(--bg-card); }
+
+  td:first-child {
+    font-weight: 600;
+    color: var(--text);
+    white-space: nowrap;
+  }
+
+  .dose-tag {
+    display: inline-block;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.78rem;
+    padding: 0.15em 0.6em;
+    border-radius: 6px;
+  }
+
+  /* ——— Comparison table ——— */
+  .comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    margin: 1.5rem 0;
+  }
+
+  .comp-header {
+    padding: 1rem 1.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.7rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .comp-header:first-child { background: var(--bg-card); color: var(--text-muted); }
+  .comp-header:last-child { background: var(--accent-dim); color: var(--accent); }
+
+  .comp-row {
+    display: contents;
+  }
+
+  .comp-cell {
+    padding: 0.9rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.9rem;
+  }
+
+  .comp-cell:first-child { color: var(--text-muted); }
+  .comp-cell:last-child { color: var(--text); background: #f0c04008; }
+
+  .comp-label {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-dim);
+    margin-bottom: 0.3rem;
+  }
+
+  /* ——— Stage timeline ——— */
+  .timeline {
+    position: relative;
+    padding-left: 3rem;
+    margin: 2rem 0;
+  }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 0.65rem;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--accent), var(--teal), var(--lavender), var(--rose));
+  }
+
+  .timeline-stage {
+    position: relative;
+    margin-bottom: 2.5rem;
+  }
+
+  .timeline-dot {
+    position: absolute;
+    left: -2.6rem;
+    top: 0.3rem;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 2px solid var(--accent);
+    background: var(--bg);
+  }
+
+  .timeline-stage:nth-child(2) .timeline-dot { border-color: var(--teal); }
+  .timeline-stage:nth-child(3) .timeline-dot { border-color: var(--lavender); }
+  .timeline-stage:nth-child(4) .timeline-dot { border-color: var(--rose); }
+
+  .timeline-stage h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+  }
+
+  .timeline-stage ol {
+    padding-left: 1.2rem;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+  }
+
+  .timeline-stage li { margin-bottom: 0.5rem; }
+
+  /* ——— Caveats ——— */
+  .caveat-card {
+    padding: 1.2rem 1.5rem;
+    background: var(--bg-card);
+    border-left: 3px solid var(--rose);
+    border-radius: 0 12px 12px 0;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+    color: var(--text-muted);
+  }
+
+  .caveat-card strong { color: var(--rose); }
+
+  /* ——— Footer ——— */
+  footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border);
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  footer p { margin-bottom: 0.5rem; }
+
+  /* ——— Animations ——— */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ——— Responsive ——— */
+  @media (max-width: 640px) {
+    body { font-size: 19px; line-height: 1.8; }
+    .side-nav { display: none; }
+    .container { padding: 0 1.25rem 4rem; }
+    .hero { padding: 3rem 1.5rem; }
+    .hero-sub { font-size: 1.25rem; }
+    .hero-badge { font-size: 0.85rem; }
+    .scroll-hint { font-size: 1rem; }
+
+    .tldr { padding: 0 1.25rem; }
+    .tldr-card { padding: 2rem 1.5rem; }
+    .tldr-card::before { font-size: 3.5rem; }
+    .tldr-card p { font-size: 1.05rem; }
+    .highlight-box { font-size: 1.05rem; padding: 1.2rem; }
+
+    .section-label { font-size: 0.8rem; }
+    h2 { font-size: 1.8rem; }
+    h3 { font-size: 1.3rem; }
+
+    .finding-card { padding: 1.5rem; }
+    .finding-number { font-size: 2rem; }
+    .finding-card h4 { font-size: 1.1rem; }
+    .finding-card p { font-size: 1rem; }
+
+    .pattern-item { font-size: 1.05rem; padding: 1rem 1.2rem; }
+
+    .strategy-card { padding: 1.5rem; }
+    .strategy-card h4 { font-size: 1.15rem; }
+    .strategy-card li { font-size: 1rem; padding: 0.5rem 0 0.5rem 1.5rem; }
+    .strategy-card p { font-size: 1rem; }
+
+    .dont-list li { font-size: 1rem; padding: 1rem 1.2rem 1rem 2.8rem; }
+
+    .comparison-grid { grid-template-columns: 1fr; }
+    .comp-header:last-child { border-top: 1px solid var(--border); }
+    .comp-header { font-size: 0.8rem; }
+    .comp-cell { font-size: 1rem; }
+    .comp-label { font-size: 0.75rem; }
+
+    table { font-size: 0.95rem; }
+    th { font-size: 0.75rem; }
+    td { padding: 0.8rem 1rem; }
+    .dose-tag { font-size: 0.85rem; }
+
+    .timeline-stage h4 { font-size: 1.15rem; }
+    .timeline-stage li { font-size: 1rem; margin-bottom: 0.6rem; }
+
+    .caveat-card { font-size: 1rem; padding: 1.2rem; }
+
+    footer { font-size: 0.95rem; }
+  }
+
+  /* ——— Font Size Controls ——— */
+  .font-controls {
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.6rem 1rem;
+    background: rgba(10, 10, 10, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .fc-btn {
+    font-family: 'Libre Baskerville', 'Times New Roman', serif;
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--text);
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .fc-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .fc-btn:active { transform: scale(0.95); background: var(--bg-card-hover); }
+
+  .fc-reset {
+    font-size: 1rem;
+    padding: 0.4rem 0.7rem;
+    margin-left: 0.25rem;
+  }
+
+  .fc-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    min-width: 3.5rem;
+    text-align: center;
+    letter-spacing: 0.05em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ====== HERO ====== -->
+<header class="hero" id="top">
+  <span class="hero-badge">Evidence-Based Guide</span>
+  <h1>Visual Tourettic <em>OCD</em></h1>
+  <p class="hero-sub">A comprehensive, research-backed guide to self-help strategies and medication options for VTOCD — because understanding it is the first step to reclaiming your life.</p>
+  <div class="scroll-hint">
+    scroll to explore
+    <span>↓</span>
+  </div>
+</header>
+
+<!-- ====== FONT SIZE CONTROL ====== -->
+<div class="font-controls" id="fontControls">
+  <button class="fc-btn" id="fontMinus" title="ลดขนาด">A−</button>
+  <span class="fc-label" id="fontLabel">100%</span>
+  <button class="fc-btn" id="fontPlus" title="เพิ่มขนาด">A+</button>
+  <button class="fc-btn fc-reset" id="fontReset" title="รีเซ็ต">↺</button>
+</div>
+<nav class="side-nav">
+  <a href="#tldr" title="TL;DR"></a>
+  <a href="#findings" title="Key Findings"></a>
+  <a href="#what" title="What is VTOCD"></a>
+  <a href="#self-help" title="Self-Help"></a>
+  <a href="#meds" title="Medications"></a>
+  <a href="#comparison" title="Comparison"></a>
+  <a href="#stages" title="Staged Approach"></a>
+  <a href="#caveats" title="Caveats"></a>
+</nav>
+
+<div class="container">
+
+  <!-- ====== TL;DR ====== -->
+  <div class="tldr" id="tldr">
+    <div class="tldr-card">
+      <p>The most effective treatment for VTOCD is a <strong>combined approach</strong> — Exposure and Response Prevention (ERP) blended with Habit Reversal Training / CBIT, often augmented by a <strong>high-dose SSRI</strong> plus either a low-dose dopamine blocker or an alpha-2 agonist.</p>
+      <p>Standard OCD treatment alone is frequently inadequate — McDougle et al. (1993) found only a <strong>21% SSRI-monotherapy response rate</strong> in OCD-with-tics vs. 52% without.</p>
+      <div class="highlight-box">
+        💡 The single most important shift: stop treating the eye urges as a problem to eliminate (which fuels them) and start treating them as a tic to be tolerated — while you systematically extinguish the OCD-driven checking, avoidance, and rumination. The latter causes the suffering, not the gaze itself.
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== KEY FINDINGS ====== -->
+  <section id="findings">
+    <span class="section-label">Research</span>
+    <h2>Key Findings</h2>
+
+    <div class="finding-card">
+      <span class="finding-number">01</span>
+      <h4>VTOCD is a recognized clinical subtype — but not in DSM-5</h4>
+      <p>Visual Tourettic OCD is a variant of Tourettic OCD (TOCD), introduced by Mansueto &amp; Keuler in their 2005 paper. The 2022 review by Katz et al. (Boston Children's Hospital) confirms TOCD is an "intermediate neuropsychiatric disorder distinct from either TS or OCD alone" with overlapping cortico-striato-thalamo-cortical (CSTC) circuit involvement.</p>
+    </div>
+
+    <div class="finding-card">
+      <span class="finding-number">02</span>
+      <h4>Standard OCD treatment is often inadequate</h4>
+      <p>McDougle et al. (1993, 1994) found OCD patients with tics responded to SSRI monotherapy at only 21% vs. 52% for OCD without tics. The POTS study replicated this in youth: sertraline monotherapy did no better than placebo for tic-related OCD.</p>
+    </div>
+
+    <div class="finding-card">
+      <span class="finding-number">03</span>
+      <h4>Pharmacology must address both components</h4>
+      <p>Per Katz et al. 2022: "TOCD often warrants combined treatment as well as higher dosing regimens due to overlapping symptomatology. Management with antipsychotics is required more often."</p>
+    </div>
+
+    <div class="finding-card">
+      <span class="finding-number">04</span>
+      <h4>Behavioral therapy must be modified</h4>
+      <p>Mansueto &amp; Keuler (2005) state TOCD requires longer ERP regimens, more rote practice, deliberate "just wrong" exposure, muscle relaxation, diaphragmatic breathing, and competing-response substitution strategies — none standard in OCD ERP.</p>
+    </div>
+
+    <div class="finding-card">
+      <span class="finding-number">05</span>
+      <h4>VTOCD has its own validated self-help techniques</h4>
+      <p>Dr. Jonathan Grayson developed the "sneak-a-peek" and "three-point gaze" techniques specifically for VTOCD, now standard recommendations from IOCDF grassroots advocates.</p>
+    </div>
+  </section>
+
+  <!-- ====== WHAT IS VTOCD ====== -->
+  <section id="what">
+    <span class="section-label">Understanding</span>
+    <h2>What VTOCD Actually Is</h2>
+    <p>VTOCD presents in four overlapping patterns:</p>
+
+    <div class="patterns">
+      <div class="pattern-item">
+        <span class="pattern-num">1</span>
+        <span>Repetitive involuntary glances or stares at objects in the visual periphery</span>
+      </div>
+      <div class="pattern-item">
+        <span class="pattern-num">2</span>
+        <span>Fear of staring inappropriately at private body areas — without actually doing so</span>
+      </div>
+      <div class="pattern-item">
+        <span class="pattern-num">3</span>
+        <span>Believing one is staring when one is not</span>
+      </div>
+      <div class="pattern-item">
+        <span class="pattern-num">4</span>
+        <span>Actually staring or glancing in ways others notice</span>
+      </div>
+    </div>
+
+    <p>The <strong>tic component</strong> is the involuntary, urge-driven eye movement — often preceded by a "not just right" sensation, similar to a Tourette premonitory urge.</p>
+    <p>The <strong>OCD component</strong> is the catastrophic interpretation: "What if I'm a pervert? What if I get fired?" — plus compulsions like avoidance, mental checking, reassurance-seeking, blinking hard to "reset," and wearing sunglasses.</p>
+  </section>
+
+  <!-- ====== SELF-HELP ====== -->
+  <section id="self-help">
+    <span class="section-label">Strategies</span>
+    <h2>Self-Treatment &amp; Coping</h2>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">A</span>
+      <h4>ERP Modified for VTOCD</h4>
+      <p>The gold standard — but the exposure target is NOT the staring itself; it's <em>the feared consequence</em> of being caught or being a "bad person."</p>
+      <ul>
+        <li>Build a fear hierarchy around avoided situations: gym, beach, transit, meetings. Rank each 0–10.</li>
+        <li>Start at the bottom and stay until the urge to escape drops by half (typically 20–45 minutes).</li>
+        <li>Drop the rituals: stop defensive sunglasses, reassurance-seeking, mental reviewing, avoidance, and the "blink-hard reset."</li>
+        <li>Imaginal exposure: write "Someone saw me glance and now thinks I'm a creep" and read it daily until it loses charge.</li>
+      </ul>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">B</span>
+      <h4>Grayson's "Sneak-a-Peek" Technique</h4>
+      <p>Counterintuitively, give yourself permission to look. The harder you fight the urge, the stronger it gets.</p>
+      <ul>
+        <li>At social distance (~10 ft): look → acknowledge → move on, rather than fighting the gaze</li>
+        <li>At far distance: give yourself permission to stare openly — it's not a problem at distance</li>
+        <li>Do quick, deliberate "sneak peeks" rather than fighting and producing the prolonged tic-stare</li>
+        <li>Accept in advance: "Sometimes I stare blankly, excuse me" — and accept being caught as tolerable</li>
+      </ul>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">C</span>
+      <h4>Three-Point Gaze Training</h4>
+      <p>Focus on an imaginary triangle on the other person's face — chin + a point above each eye. Rotate your gaze among these slowly. This produces natural interest-display without locked staring.</p>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">D</span>
+      <h4>Habit Reversal Training (HRT) / CBIT</h4>
+      <p>Recommended as first-line for tics by the 2019 AAN Practice Guideline. Self-applied steps:</p>
+      <ul>
+        <li><strong>Awareness training:</strong> log every visual tic for one week — time, location, what preceded it</li>
+        <li><strong>Competing response:</strong> when you feel the urge, do an incompatible behavior for one minute — e.g., deliberate slow blinking, looking at a fixed neutral point</li>
+        <li><strong>Function-based intervention:</strong> identify worsening environments and modify (sit facing a wall, take a longer-distance seat, take breaks)</li>
+      </ul>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">E</span>
+      <h4>ACT Techniques</h4>
+      <ul>
+        <li><strong>Cognitive defusion:</strong> instead of "I'm a creep," say "I'm having the thought that I'm a creep… and that's just OCD doing its thing." Sing the thought to a silly tune.</li>
+        <li><strong>Acceptance:</strong> treat the urge as a transient body event, not a moral signal</li>
+        <li><strong>Values-based action:</strong> keep going to social settings because they matter to you, not when anxiety has cleared</li>
+        <li><strong>Self-as-context:</strong> you are the awareness in which OCD/tics arise — not the thoughts themselves</li>
+      </ul>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">F</span>
+      <h4>Mindfulness &amp; Self-Compassion</h4>
+      <p>When the tic happens, place a hand on your chest and say: "This is hard. This is OCD attacking what I value most. I'm doing my best."</p>
+      <p>Recommended resource: Kimberley Quinlan's <em>The Self-Compassion Workbook for OCD</em> (New Harbinger).</p>
+    </div>
+
+    <div class="strategy-card">
+      <span class="strategy-letter">G</span>
+      <h4>Mansueto's Specific TOCD Additions</h4>
+      <ul>
+        <li><strong>Diaphragmatic breathing</strong> during exposures: imagine "breathing away" tension</li>
+        <li><strong>Differential muscle relaxation:</strong> target the specific muscle group producing the urge (often eyes, brow, jaw)</li>
+        <li><strong>"Just wrong" practice:</strong> deliberately perform tics imperfectly — look slightly off-target, end the glance early — to build tolerance</li>
+        <li><strong>Substitution strategies:</strong> a competing motor response such as gently squeezing a fist</li>
+      </ul>
+    </div>
+
+    <h3>What NOT to Do</h3>
+    <ul class="dont-list">
+      <li>Wear sunglasses defensively (compulsion)</li>
+      <li>Avoid social situations (compulsion)</li>
+      <li>Seek reassurance from friends/partners ("Was that weird?")</li>
+      <li>Compulsively google or post about VTOCD seeking certainty</li>
+      <li>Try to suppress every urge — this often makes them stronger (paradoxical rebound)</li>
+      <li>Take cannabis as self-treatment — it can worsen OCD anxiety in many users</li>
+    </ul>
+  </section>
+
+  <!-- ====== MEDICATIONS ====== -->
+  <section id="meds">
+    <span class="section-label">Pharmacology</span>
+    <h2>Medications</h2>
+    <p style="color: var(--rose); font-weight: 600; margin-bottom: 2rem;">⚠ All medication decisions must be made with a psychiatrist. Doses below are typical adult ranges.</p>
+
+    <h3>First-Line: SSRI Monotherapy (OCD-Level Doses)</h3>
+    <p>SSRIs for OCD require higher doses than for depression, and a longer trial (8–12 weeks minimum). Remember: only 21% response rate expected in OCD-with-tics.</p>
+
+    <div class="med-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Medication</th>
+            <th>Brand</th>
+            <th>OCD Dose Range</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Fluoxetine</td>
+            <td>Prozac</td>
+            <td><span class="dose-tag">40–80 mg/day</span> (up to 120)</td>
+          </tr>
+          <tr>
+            <td>Sertraline</td>
+            <td>Zoloft</td>
+            <td><span class="dose-tag">200–400 mg/day</span></td>
+          </tr>
+          <tr>
+            <td>Fluvoxamine</td>
+            <td>Luvox</td>
+            <td><span class="dose-tag">200–300 mg/day</span> (up to 450)</td>
+          </tr>
+          <tr>
+            <td>Paroxetine</td>
+            <td>Paxil</td>
+            <td><span class="dose-tag">40–60 mg/day</span> (up to 100)</td>
+          </tr>
+          <tr>
+            <td>Escitalopram</td>
+            <td>Lexapro</td>
+            <td><span class="dose-tag">10–20 mg/day</span> (up to 60)</td>
+          </tr>
+          <tr>
+            <td>Clomipramine</td>
+            <td>Anafranil</td>
+            <td><span class="dose-tag">100–250 mg/day</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Second-Line: SSRI + Low-Dose Antipsychotic</h3>
+    <p>Approximately one-third of treatment-refractory OCD patients respond to antipsychotic augmentation (NNT = 4.6). Patients with comorbid tic disorders respond particularly well.</p>
+
+    <div class="med-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Medication</th>
+            <th>Brand</th>
+            <th>Augmentation Dose</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Risperidone</td>
+            <td>Risperdal</td>
+            <td><span class="dose-tag">0.5–3 mg/day</span></td>
+            <td>32% YGTSS reduction in Yale's RCT</td>
+          </tr>
+          <tr>
+            <td>Aripiprazole</td>
+            <td>Abilify</td>
+            <td><span class="dose-tag">5–15 mg/day</span></td>
+            <td>5 mg if &lt;50 kg, 10 mg if ≥50 kg</td>
+          </tr>
+          <tr>
+            <td>Haloperidol</td>
+            <td>Haldol</td>
+            <td><span class="dose-tag">1–3 mg/day</span></td>
+            <td>FDA-approved for tics; EPS risk</td>
+          </tr>
+          <tr>
+            <td>Quetiapine</td>
+            <td>Seroquel</td>
+            <td><span class="dose-tag">~169 mg/day</span></td>
+            <td>Less evidence than risperidone</td>
+          </tr>
+          <tr>
+            <td>Brexpiprazole</td>
+            <td>Rexulti</td>
+            <td><span class="dose-tag">1–4 mg/day</span></td>
+            <td>Emerging evidence; not yet guideline-level</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3>Alpha-2 Agonists (First-Line for the Tic Component)</h3>
+    <p>Lower side-effect burden than antipsychotics and particularly well-suited to TOCD/VTOCD.</p>
+
+    <div class="med-table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>Medication</th>
+            <th>Brand</th>
+            <th>Dose</th>
+            <th>Notes</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Guanfacine</td>
+            <td>Tenex / Intuniv</td>
+            <td><span class="dose-tag">1.5–4 mg/day</span></td>
+            <td>Less sedating; start 0.5 mg at bedtime</td>
+          </tr>
+          <tr>
+            <td>Clonidine</td>
+            <td>Catapres</td>
+            <td><span class="dose-tag">0.1–0.4 mg/day</span></td>
+            <td>Oral or patch; do not stop abruptly</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ====== COMPARISON ====== -->
+  <section id="comparison">
+    <span class="section-label">At a Glance</span>
+    <h2>Standard OCD vs. VTOCD Treatment</h2>
+
+    <div class="comparison-grid">
+      <div class="comp-header">Standard OCD</div>
+      <div class="comp-header">Visual Tourettic OCD</div>
+
+      <div class="comp-cell"><span class="comp-label">First-line therapy</span>ERP alone</div>
+      <div class="comp-cell"><span class="comp-label">First-line therapy</span>ERP + CBIT/HRT in parallel</div>
+
+      <div class="comp-cell"><span class="comp-label">ERP modifications</span>Standard hierarchy</div>
+      <div class="comp-cell"><span class="comp-label">ERP modifications</span>Longer sessions, rote practice, "just wrong" practice, relaxation, competing responses</div>
+
+      <div class="comp-cell"><span class="comp-label">SSRI response</span>~52% (McDougle 1993)</div>
+      <div class="comp-cell"><span class="comp-label">SSRI response</span>~21% (McDougle 1993)</div>
+
+      <div class="comp-cell"><span class="comp-label">First-line meds</span>SSRI alone</div>
+      <div class="comp-cell"><span class="comp-label">First-line meds</span>SSRI + low-dose alpha-2 agonist or antipsychotic considered earlier</div>
+
+      <div class="comp-cell"><span class="comp-label">Alpha-2 agonists</span>Not used</div>
+      <div class="comp-cell"><span class="comp-label">Alpha-2 agonists</span>First-line for the tic component</div>
+
+      <div class="comp-cell"><span class="comp-label">Polypharmacy</span>Less common</div>
+      <div class="comp-cell"><span class="comp-label">Polypharmacy</span>More likely; higher dosing regimens</div>
+
+      <div class="comp-cell"><span class="comp-label">Exposure target</span>The obsessional fear</div>
+      <div class="comp-cell"><span class="comp-label">Exposure target</span>The fear + tolerating the "not just right" sensation</div>
+    </div>
+  </section>
+
+  <!-- ====== STAGED APPROACH ====== -->
+  <section id="stages">
+    <span class="section-label">Action Plan</span>
+    <h2>Staged Approach</h2>
+
+    <div class="timeline">
+      <div class="timeline-stage">
+        <div class="timeline-dot"></div>
+        <h4>Stage 1 — Self-Help Baseline (Start Now)</h4>
+        <ol>
+          <li>Read Mansueto &amp; Keuler's 2005 paper and the Katz 2022 review (open access at PMC9363583)</li>
+          <li>Start a daily 10-minute mindfulness or self-compassion practice</li>
+          <li>Stop the obvious compulsions: sunglasses, avoidance, reassurance-seeking, mental review, blink-resetting</li>
+          <li>Begin Grayson's three-point face triangle and sneak-a-peek in low-stakes situations</li>
+          <li>Build a written fear hierarchy and start exposures at level 2–3</li>
+          <li>Work through Carol Edwards' <em>Address Staring OCD</em></li>
+          <li>Join the IOCDF Visual Tourettic OCD Warrior Badass Tribe support group</li>
+        </ol>
+      </div>
+
+      <div class="timeline-stage">
+        <div class="timeline-dot"></div>
+        <h4>Stage 2 — Find a Specialist (Within 4–8 Weeks)</h4>
+        <ol start="8">
+          <li>Find a clinician trained in both ERP for OCD and CBIT for tics (IOCDF directory or TAA Behavior Therapy Institute)</li>
+          <li>Ask: "Are you familiar with Tourettic OCD as described by Mansueto?" — if not, find another</li>
+          <li>Begin combined ERP + HRT with weekly sessions; expect 16–20+ weeks</li>
+        </ol>
+      </div>
+
+      <div class="timeline-stage">
+        <div class="timeline-dot"></div>
+        <h4>Stage 3 — Add Medication (If Moderate-Severe After 8–12 Weeks)</h4>
+        <ol start="11">
+          <li>Add an SSRI — sertraline or fluoxetine, titrated to OCD doses over 12 weeks</li>
+          <li>If partial response: add guanfacine, low-dose aripiprazole, or risperidone</li>
+        </ol>
+      </div>
+
+      <div class="timeline-stage">
+        <div class="timeline-dot"></div>
+        <h4>Stage 4 — Treatment-Resistant (&lt;25–35% Y-BOCS Reduction After 3 Months)</h4>
+        <ol start="13">
+          <li>Switch SSRIs (try at least 2–3); consider clomipramine</li>
+          <li>Consider supratherapeutic SSRI dosing under close supervision</li>
+          <li>Consider referral for TMS or — for severe adult cases — DBS evaluation</li>
+        </ol>
+      </div>
+    </div>
+
+    <h3>Benchmarks That Should Change the Plan</h3>
+    <div class="caveat-card"><strong>12 weeks</strong> of well-implemented ERP+CBIT with no improvement → add or change medication</div>
+    <div class="caveat-card"><strong>&lt;25% Y-BOCS reduction</strong> after 3 months on therapeutic-dose SSRI → add antipsychotic or alpha-2 agonist</div>
+    <div class="caveat-card"><strong>6–9 months</strong> of SSRI + augmentation + therapy with persistent impairment → refer to tertiary center</div>
+    <div class="caveat-card"><strong>Suicidal ideation, complete social withdrawal, or job loss</strong> → urgent psychiatric referral; do not stay in Stage 1 self-help</div>
+  </section>
+
+  <!-- ====== CAVEATS ====== -->
+  <section id="caveats">
+    <span class="section-label">Important Notes</span>
+    <h2>Caveats</h2>
+
+    <div class="caveat-card"><strong>Not in the DSM-5.</strong> VTOCD remains a clinical label, not a diagnostic one. Using "tic-related OCD" may communicate better with unfamiliar clinicians.</div>
+    <div class="caveat-card"><strong>No RCTs specific to VTOCD.</strong> All recommendations are extrapolated from tic-related OCD studies and clinical experience.</div>
+    <div class="caveat-card"><strong>Pediatric vs. adult treatment differs.</strong> Most TOCD evidence is pediatric; adult VTOCD is under-studied.</div>
+    <div class="caveat-card"><strong>Antipsychotic side effects are real.</strong> Stay at low doses. The UK Advanced Interventions Service warns against high-dose augmentation (risperidone 6–8 mg/day).</div>
+    <div class="caveat-card"><strong>SSRIs in young people</strong> require monitoring for treatment-emergent suicidality (FDA black box warning under age 25).</div>
+    <div class="caveat-card"><strong>Self-help is not a substitute</strong> for treatment when impairment is severe. If you are losing your job, isolating, or having suicidal thoughts, seek immediate professional help.</div>
+    <div class="caveat-card"><strong>Online sources vary in quality.</strong> Rely on IOCDF.org, Tourette.org, AAN guidelines, PubMed/PMC, and named clinicians.</div>
+  </section>
+
+</div>
+
+<footer>
+  <p>Based on research by Mansueto &amp; Keuler (2005), Katz et al. (2022), McDougle et al. (1993), Grayson (2021), and others.</p>
+  <p>This document is for informational purposes only and is not medical advice.</p>
+</footer>
+
+<script>
+  // Intersection Observer for fade-in sections
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('section').forEach(s => observer.observe(s));
+
+  // Side nav active state
+  const navLinks = document.querySelectorAll('.side-nav a');
+  const sections = document.querySelectorAll('section, .tldr');
+
+  const navObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const id = entry.target.id;
+        navLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.side-nav a[href="#${id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3 });
+
+  sections.forEach(s => { if (s.id) navObserver.observe(s); });
+
+  // Font size controls
+  (function() {
+    const MIN = 80, MAX = 150, STEP = 10, DEFAULT = 100;
+    let size = parseInt(localStorage.getItem('vtocd-fontsize')) || DEFAULT;
+
+    const label = document.getElementById('fontLabel');
+    const btnPlus = document.getElementById('fontPlus');
+    const btnMinus = document.getElementById('fontMinus');
+    const btnReset = document.getElementById('fontReset');
+
+    function apply() {
+      document.documentElement.style.fontSize = size + '%';
+      label.textContent = size + '%';
+      btnMinus.style.opacity = size <= MIN ? '0.3' : '1';
+      btnPlus.style.opacity = size >= MAX ? '0.3' : '1';
+      try { localStorage.setItem('vtocd-fontsize', size); } catch(e) {}
+    }
+
+    btnPlus.addEventListener('click', function() {
+      if (size < MAX) { size += STEP; apply(); }
+    });
+    btnMinus.addEventListener('click', function() {
+      if (size > MIN) { size -= STEP; apply(); }
+    });
+    btnReset.addEventListener('click', function() {
+      size = DEFAULT; apply();
+    });
+
+    apply();
+  })();
+</script>
+
+</body>
+</html>
