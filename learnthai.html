@@ -1,0 +1,1360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เรียนไทย · Learn Thai Flashcards</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,900&family=Sarabun:wght@400;600;800&family=Space+Mono&display=swap');
+
+  :root{
+    --bg:#f4ead5; --ink:#2a1e16; --paper:#fffaf0;
+    --accent:#c0392b; --accent2:#1d6e63; --gold:#d4a017;
+    --shadow:rgba(42,30,22,0.18); --line:#e0d2b4;
+    --mid:#1d6e63; --high:#c0392b; --low:#9b59b6;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{
+    font-family:'Sarabun',sans-serif;
+    background:
+      radial-gradient(circle at 15% 20%,rgba(192,57,43,.06),transparent 40%),
+      radial-gradient(circle at 85% 75%,rgba(29,110,99,.07),transparent 45%),
+      var(--bg);
+    color:var(--ink); min-height:100vh; overflow-x:hidden; background-attachment:fixed;
+  }
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:9999;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+  header{text-align:center;padding:38px 20px 14px;}
+  .kicker{font-family:'Space Mono',monospace;letter-spacing:.35em;text-transform:uppercase;font-size:.7rem;color:var(--accent2);margin-bottom:8px;}
+  h1{font-family:'Fraunces',serif;font-weight:900;font-size:clamp(2.2rem,6vw,3.6rem);line-height:.95;letter-spacing:-.02em;}
+  h1 .th{color:var(--accent);display:block;font-size:.7em;margin-top:4px;}
+  .wrap{max-width:960px;margin:0 auto;padding:0 20px 60px;}
+
+  .levels{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:16px;margin-top:24px;}
+  .level-card{background:var(--paper);border:1.5px solid var(--line);border-radius:16px;padding:20px 18px;cursor:pointer;position:relative;transition:transform .25s cubic-bezier(.2,.9,.3,1.3),box-shadow .25s,border-color .25s;box-shadow:0 4px 0 var(--line);overflow:hidden;}
+  .level-card:hover{transform:translateY(-4px);box-shadow:0 10px 22px var(--shadow);border-color:var(--gold);}
+  .level-card .num{font-family:'Space Mono',monospace;font-size:.7rem;color:var(--accent2);letter-spacing:.2em;}
+  .level-card h3{font-family:'Fraunces',serif;font-size:1.3rem;margin:6px 0 2px;font-weight:600;}
+  .level-card .th-sub{color:var(--accent);font-weight:600;font-size:1rem;}
+  .level-card .desc{font-size:.8rem;color:#6b5a48;margin-top:8px;line-height:1.4;}
+  .level-card .bar{height:6px;background:var(--line);border-radius:4px;margin-top:14px;overflow:hidden;}
+  .level-card .bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),var(--accent2));width:0%;transition:width .6s;}
+  .level-card .pct{font-family:'Space Mono',monospace;font-size:.62rem;color:#6b5a48;margin-top:6px;}
+
+  .stage{display:none;}
+  .stage.active{display:block;animation:fade .4s;}
+  @keyframes fade{from{opacity:0;transform:translateY(10px);}to{opacity:1;transform:none;}}
+
+  .topbar{display:flex;align-items:center;justify-content:space-between;margin:22px 0 6px;gap:12px;flex-wrap:wrap;}
+  .btn{font-family:'Space Mono',monospace;font-size:.76rem;border:1.5px solid var(--ink);background:var(--paper);color:var(--ink);padding:9px 16px;border-radius:999px;cursor:pointer;transition:all .2s;letter-spacing:.05em;}
+  .btn:hover{background:var(--ink);color:var(--paper);}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff;}
+  .btn.primary:hover{background:#a93226;}
+  .btn.ghost{border-color:var(--line);}
+  .stage-title{font-family:'Fraunces',serif;font-size:1.45rem;font-weight:600;}
+  .stage-title small{display:block;font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;color:var(--accent2);text-transform:uppercase;}
+  .counter{font-family:'Space Mono',monospace;font-size:.8rem;color:#6b5a48;}
+
+  /* sub-group selector chips */
+  .chips{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0 0;}
+  .chip{font-family:'Space Mono',monospace;font-size:.7rem;padding:7px 13px;border-radius:999px;border:1.5px solid var(--line);background:var(--paper);cursor:pointer;transition:all .2s;}
+  .chip.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+
+  /* flashcard */
+  .card-scene{perspective:1400px;margin:16px auto;max-width:470px;}
+  .card{position:relative;width:100%;height:330px;transform-style:preserve-3d;transition:transform .6s cubic-bezier(.4,.2,.2,1);cursor:pointer;}
+  .card.flipped{transform:rotateY(180deg);}
+  .face{position:absolute;inset:0;backface-visibility:hidden;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:22px;text-align:center;box-shadow:0 12px 30px var(--shadow);}
+  .face.front{background:var(--paper);border:2px solid var(--line);}
+  .face.back{background:var(--ink);color:var(--paper);transform:rotateY(180deg);}
+  .glyph{font-family:'Sarabun',sans-serif;font-size:clamp(6rem,26vw,8.5rem);font-weight:800;line-height:1.05;color:var(--accent);letter-spacing:0.04em;}
+  .face.back .glyph{color:var(--gold);font-size:clamp(4rem,18vw,6rem);}
+  .romanize{font-family:'Fraunces',serif;font-size:1.7rem;margin-top:8px;}
+  .pron-table{margin-top:14px;font-family:'Space Mono',monospace;font-size:1rem;line-height:1.8;opacity:.95;}
+  .pron-table b{color:var(--gold);display:inline-block;width:46px;text-align:right;margin-right:10px;font-weight:400;}
+  .meaning{font-size:1.15rem;opacity:.92;margin-top:12px;max-width:94%;}
+  @media (max-width:600px){
+    .card{height:300px;}
+    .glyph{font-size:30vw;}
+    .face.back .glyph{font-size:20vw;}
+    .pron-table{font-size:1.05rem;line-height:1.85;}
+    .pron-table b{width:48px;}
+    .meaning{font-size:1.2rem;}
+    .romanize{font-size:1.6rem;}
+  }
+  .hint{font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;opacity:.5;margin-top:16px;}
+  .class-tag{font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;margin-top:12px;padding:3px 12px;border-radius:999px;}
+  .class-tag.mid{background:rgba(29,110,99,.2);color:#fff;}
+  .class-tag.high{background:rgba(192,57,43,.25);color:#fff;}
+  .class-tag.low{background:rgba(155,89,182,.28);color:#fff;}
+  .obsolete-flag{position:absolute;top:14px;right:14px;font-family:'Space Mono',monospace;font-size:.58rem;letter-spacing:.1em;background:var(--accent);color:#fff;padding:4px 10px;border-radius:999px;text-transform:uppercase;}
+  .face.front .corner-class{position:absolute;top:14px;left:14px;font-family:'Space Mono',monospace;font-size:.6rem;letter-spacing:.1em;padding:3px 9px;border-radius:999px;text-transform:uppercase;font-weight:700;}
+  .corner-class.mid{background:var(--mid);color:#fff;}
+  .corner-class.high{background:var(--high);color:#fff;}
+  .corner-class.low{background:var(--low);color:#fff;}
+
+  .controls{display:flex;gap:12px;justify-content:center;align-items:center;margin-top:20px;}
+  .icon-btn{width:54px;height:54px;border-radius:50%;border:1.5px solid var(--ink);background:var(--paper);cursor:pointer;font-size:1.3rem;display:grid;place-items:center;transition:all .2s;}
+  .icon-btn:hover{background:var(--gold);border-color:var(--gold);transform:scale(1.08);}
+  .icon-btn.big{width:64px;height:64px;background:var(--accent2);border-color:var(--accent2);color:#fff;font-size:1.5rem;}
+  .icon-btn.big:hover{background:#155b51;}
+  .progress-line{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin-top:20px;}
+  .progress-line>i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--gold));width:0%;transition:width .4s;}
+
+  /* lesson pages */
+  .lesson{background:var(--paper);border:1.5px solid var(--line);border-radius:18px;padding:26px 24px;margin-top:18px;box-shadow:0 8px 24px var(--shadow);line-height:1.7;}
+  .lesson h2{font-family:'Fraunces',serif;font-size:1.6rem;margin-bottom:4px;}
+  .lesson h3{font-family:'Fraunces',serif;font-size:1.2rem;margin:22px 0 8px;color:var(--accent2);}
+  .lesson p{margin:8px 0;font-size:.95rem;}
+  .lesson .glyphs{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0;}
+  .lesson .gl{font-size:1.8rem;font-weight:800;padding:8px 12px;border-radius:12px;background:#fff;border:1.5px solid var(--line);min-width:50px;text-align:center;}
+  .gl.mid{border-color:var(--mid);color:var(--mid);}
+  .gl.high{border-color:var(--high);color:var(--high);}
+  .gl.low{border-color:var(--low);color:var(--low);}
+  table.tone{width:100%;border-collapse:collapse;margin:14px 0;font-size:.86rem;}
+  table.tone th,table.tone td{border:1px solid var(--line);padding:8px 10px;text-align:center;}
+  table.tone th{background:var(--ink);color:var(--paper);font-family:'Space Mono',monospace;font-size:.72rem;letter-spacing:.05em;}
+  table.tone td:first-child{text-align:left;font-weight:600;}
+  .pill{display:inline-block;padding:2px 9px;border-radius:999px;font-size:.72rem;font-family:'Space Mono',monospace;}
+  .pill.mid{background:var(--mid);color:#fff;}.pill.high{background:var(--high);color:#fff;}.pill.low{background:var(--low);color:#fff;}
+  .callout{background:rgba(212,160,23,.12);border-left:4px solid var(--gold);padding:12px 16px;border-radius:8px;margin:14px 0;font-size:.9rem;}
+
+  /* quiz */
+  .quiz-card{background:var(--paper);border:2px solid var(--line);border-radius:22px;padding:30px 24px;text-align:center;box-shadow:0 12px 30px var(--shadow);max-width:540px;margin:16px auto;}
+  .quiz-prompt-label{font-family:'Space Mono',monospace;font-size:.7rem;letter-spacing:.2em;text-transform:uppercase;color:var(--accent2);}
+  .quiz-glyph{font-size:clamp(3.2rem,11vw,5rem);font-weight:800;color:var(--accent);margin:10px 0;}
+  .options{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:18px;}
+  .opt{padding:15px;border:1.5px solid var(--line);border-radius:14px;background:#fff;cursor:pointer;font-size:1.05rem;font-weight:600;transition:all .15s;font-family:'Fraunces',serif;}
+  .opt:hover{border-color:var(--accent2);transform:translateY(-2px);}
+  .opt.correct{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+  .opt.wrong{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .opt.glyph-opt{font-family:'Sarabun',sans-serif;font-size:1.9rem;font-weight:800;}
+  .quiz-feedback{margin-top:16px;font-weight:600;min-height:24px;}
+  .quiz-score{font-family:'Space Mono',monospace;font-size:.85rem;color:#6b5a48;}
+
+  .result{text-align:center;padding:38px 20px;background:var(--paper);border-radius:22px;border:2px solid var(--line);max-width:480px;margin:20px auto;box-shadow:0 12px 30px var(--shadow);}
+  .result .big{font-family:'Fraunces',serif;font-size:3rem;font-weight:900;color:var(--accent2);}
+  .result .stars{font-size:2rem;margin:10px 0;}
+  footer{text-align:center;padding:30px 20px;font-family:'Space Mono',monospace;font-size:.7rem;color:#8a7a66;}
+  .speak-note{background:rgba(29,110,99,.08);border:1px dashed var(--accent2);border-radius:12px;padding:10px 14px;font-size:.78rem;color:var(--accent2);margin:16px auto 0;max-width:580px;text-align:center;}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">Flashcards · ฝึกอ่านเขียน</div>
+  <h1>Learn Thai<span class="th">เรียนภาษาไทย</span></h1>
+</header>
+<div class="wrap">
+
+  <!-- HOME -->
+  <div id="home" class="stage active">
+    <div class="speak-note" id="voiceNote">🔊 Tap the speaker on any card to hear it. (Thai voice quality depends on your browser/device.)</div>
+    <div class="levels" id="levelGrid"></div>
+  </div>
+
+  <!-- STUDY -->
+  <div id="study" class="stage">
+    <div class="topbar">
+      <button class="btn ghost" onclick="goHome()">← Levels</button>
+      <div class="stage-title" id="studyTitle"></div>
+      <div class="counter" id="studyCounter"></div>
+    </div>
+    <div class="chips" id="studyChips"></div>
+    <div class="speak-note" id="sylNote" style="display:none;margin-top:10px;">⚙️ These syllables are generated automatically by Thai spelling & tone rules. Most are sound combinations rather than real words; meanings are shown only where a real word exists. Auto-derived tones follow standard rules but rare exceptions may occur.</div>
+    <div class="topbar" style="justify-content:flex-end;margin-top:6px;">
+      <button class="btn ghost" id="shuffleToggle" onclick="toggleShuffle()">🔀 Shuffle: Off</button>
+    </div>
+    <div class="card-scene">
+      <div class="card" id="flashcard" onclick="flipCard()">
+        <div class="face front">
+          <div class="corner-class" id="cornerClass" style="display:none"></div>
+          <div class="obsolete-flag" id="obsoleteFlag" style="display:none">no longer used</div>
+          <div class="glyph" id="cardGlyph"></div>
+          <div class="hint">tap to flip</div>
+        </div>
+        <div class="face back">
+          <div class="glyph" id="cardGlyphBack"></div>
+          <div class="pron-table" id="cardPron"></div>
+          <div class="meaning" id="cardMeaning"></div>
+          <div class="class-tag" id="cardClass" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <button class="icon-btn" onclick="prevCard(event)" title="Previous">←</button>
+      <button class="icon-btn big" onclick="speakCurrent(event)" title="Listen">🔊</button>
+      <button class="icon-btn" onclick="nextCard(event)" title="Next">→</button>
+    </div>
+    <div class="progress-line"><i id="studyProgress"></i></div>
+    <div class="topbar" style="justify-content:center;margin-top:22px;">
+      <button class="btn primary" onclick="startQuiz()">Take the Quiz →</button>
+    </div>
+  </div>
+
+  <!-- LESSON -->
+  <div id="lesson" class="stage">
+    <div class="topbar">
+      <button class="btn ghost" onclick="goHome()">← Levels</button>
+      <div class="stage-title" id="lessonTitle"></div>
+      <span></span>
+    </div>
+    <div class="lesson" id="lessonBody"></div>
+    <div class="topbar" style="justify-content:center;margin-top:22px;gap:12px;">
+      <button class="btn ghost" id="lessonStudyBtn" onclick="lessonToStudy()">Practice with cards →</button>
+      <button class="btn primary" onclick="lessonToQuiz()">Take the Quiz →</button>
+    </div>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quiz" class="stage">
+    <div class="topbar">
+      <button class="btn ghost" onclick="goHome()">← Levels</button>
+      <div class="stage-title">Quiz<small id="quizSub"></small></div>
+      <div class="counter quiz-score" id="quizScore"></div>
+    </div>
+    <div class="quiz-card" id="quizBody"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="result" class="stage">
+    <div class="result">
+      <div class="kicker">Level Complete</div>
+      <div class="big" id="resultPct"></div>
+      <div class="stars" id="resultStars"></div>
+      <p id="resultMsg" style="margin:10px 0 22px;"></p>
+      <button class="btn primary" onclick="retryQuiz()">Try Again</button>
+      <button class="btn ghost" onclick="goHome()">Back to Levels</button>
+    </div>
+  </div>
+
+</div>
+<footer>Made for Thai learners · progress saved on this device</footer>
+<script>
+/* ===========================================================
+   THAI LANGUAGE DATA
+   Each card field:
+     g  = glyph (Thai)
+     ph = phonetic (learner-friendly)
+     rt = RTGS (Royal Thai General System)
+     ip = IPA
+     m  = meaning / note (English)
+     c  = consonant class or extra tag
+     obsolete = true  (for ฃ ฅ)
+   =========================================================== */
+
+const DATA = {};
+
+/* ---------- LEVEL 1: 44 CONSONANTS ---------- */
+DATA.consonants = [
+  {g:"ก", ph:"gɔɔ kài", rt:"ko kai", ip:"kɔː kàj", m:"chicken — sound: g/k", c:"mid"},
+  {g:"ข", ph:"khɔɔ khài", rt:"kho khai", ip:"kʰɔː kʰàj", m:"egg — sound: kh", c:"high"},
+  {g:"ฃ", ph:"khɔɔ khùat", rt:"kho khuat", ip:"kʰɔː kʰùat", m:"bottle — sound: kh", c:"high", obsolete:true},
+  {g:"ค", ph:"khɔɔ khwaai", rt:"kho khwai", ip:"kʰɔː kʰwaːj", m:"buffalo — sound: kh", c:"low"},
+  {g:"ฅ", ph:"khɔɔ khon", rt:"kho khon", ip:"kʰɔː kʰon", m:"person — sound: kh", c:"low", obsolete:true},
+  {g:"ฆ", ph:"khɔɔ rákhang", rt:"kho rakhang", ip:"kʰɔː rákʰaŋ", m:"bell — sound: kh", c:"low"},
+  {g:"ง", ph:"ngɔɔ nguu", rt:"ngo ngu", ip:"ŋɔː ŋuː", m:"snake — sound: ng", c:"low"},
+  {g:"จ", ph:"jɔɔ jaan", rt:"cho chan", ip:"tɕɔː tɕaːn", m:"plate — sound: j/c", c:"mid"},
+  {g:"ฉ", ph:"chɔɔ chìng", rt:"cho ching", ip:"tɕʰɔː tɕʰìŋ", m:"cymbals — sound: ch", c:"high"},
+  {g:"ช", ph:"chɔɔ cháang", rt:"cho chang", ip:"tɕʰɔː tɕʰáːŋ", m:"elephant — sound: ch", c:"low"},
+  {g:"ซ", ph:"sɔɔ sôo", rt:"so so", ip:"sɔː sôː", m:"chain — sound: s", c:"low"},
+  {g:"ฌ", ph:"chɔɔ chəə", rt:"cho choe", ip:"tɕʰɔː tɕʰɤː", m:"tree — sound: ch", c:"low"},
+  {g:"ญ", ph:"yɔɔ yǐng", rt:"yo ying", ip:"jɔː jǐŋ", m:"woman — sound: y", c:"low"},
+  {g:"ฎ", ph:"dɔɔ chá-daa", rt:"do chada", ip:"dɔː tɕʰádaː", m:"headdress — sound: d", c:"mid"},
+  {g:"ฏ", ph:"tɔɔ pà-tàk", rt:"to patak", ip:"tɔː pàtàk", m:"goad — sound: t", c:"mid"},
+  {g:"ฐ", ph:"thɔɔ thǎan", rt:"tho than", ip:"tʰɔː tʰǎːn", m:"pedestal — sound: th", c:"high"},
+  {g:"ฑ", ph:"thɔɔ montho", rt:"tho montho", ip:"tʰɔː montʰoː", m:"Montho (character) — sound: th/d", c:"low"},
+  {g:"ฒ", ph:"thɔɔ phûu-thâo", rt:"tho phuthao", ip:"tʰɔː pʰûːtʰâw", m:"elder — sound: th", c:"low"},
+  {g:"ณ", ph:"nɔɔ neen", rt:"no nen", ip:"nɔː neːn", m:"novice monk — sound: n", c:"low"},
+  {g:"ด", ph:"dɔɔ dèk", rt:"do dek", ip:"dɔː dèk", m:"child — sound: d", c:"mid"},
+  {g:"ต", ph:"tɔɔ tào", rt:"to tao", ip:"tɔː tàw", m:"turtle — sound: t", c:"mid"},
+  {g:"ถ", ph:"thɔɔ thǔng", rt:"tho thung", ip:"tʰɔː tʰǔŋ", m:"bag — sound: th", c:"high"},
+  {g:"ท", ph:"thɔɔ thahǎan", rt:"tho thahan", ip:"tʰɔː tʰahǎːn", m:"soldier — sound: th", c:"low"},
+  {g:"ธ", ph:"thɔɔ thong", rt:"tho thong", ip:"tʰɔː tʰoŋ", m:"flag — sound: th", c:"low"},
+  {g:"น", ph:"nɔɔ nǔu", rt:"no nu", ip:"nɔː nǔː", m:"mouse — sound: n", c:"low"},
+  {g:"บ", ph:"bɔɔ baimáai", rt:"bo baimai", ip:"bɔː bajmáːj", m:"leaf — sound: b", c:"mid"},
+  {g:"ป", ph:"pɔɔ plaa", rt:"po pla", ip:"pɔː plaː", m:"fish — sound: p (unaspirated)", c:"mid"},
+  {g:"ผ", ph:"phɔɔ phʉ̂ng", rt:"pho phueng", ip:"pʰɔː pʰɯ̂ŋ", m:"bee — sound: ph", c:"high"},
+  {g:"ฝ", ph:"fɔɔ fǎa", rt:"fo fa", ip:"fɔː fǎː", m:"lid — sound: f", c:"high"},
+  {g:"พ", ph:"phɔɔ phaan", rt:"pho phan", ip:"pʰɔː pʰaːn", m:"tray — sound: ph", c:"low"},
+  {g:"ฟ", ph:"fɔɔ fan", rt:"fo fan", ip:"fɔː fan", m:"teeth — sound: f", c:"low"},
+  {g:"ภ", ph:"phɔɔ sǎm-phao", rt:"pho samphao", ip:"pʰɔː sǎmpʰaw", m:"sailboat — sound: ph", c:"low"},
+  {g:"ม", ph:"mɔɔ máa", rt:"mo ma", ip:"mɔː máː", m:"horse — sound: m", c:"low"},
+  {g:"ย", ph:"yɔɔ yák", rt:"yo yak", ip:"jɔː ják", m:"giant — sound: y", c:"low"},
+  {g:"ร", ph:"rɔɔ rʉa", rt:"ro ruea", ip:"rɔː rɯa", m:"boat — sound: r", c:"low"},
+  {g:"ล", ph:"lɔɔ ling", rt:"lo ling", ip:"lɔː liŋ", m:"monkey — sound: l", c:"low"},
+  {g:"ว", ph:"wɔɔ wǎen", rt:"wo waen", ip:"wɔː wɛ̌ːn", m:"ring — sound: w", c:"low"},
+  {g:"ศ", ph:"sɔɔ sǎa-laa", rt:"so sala", ip:"sɔː sǎːlaː", m:"pavilion — sound: s", c:"high"},
+  {g:"ษ", ph:"sɔɔ rʉʉ-sǐi", rt:"so rusi", ip:"sɔː rɯːsǐː", m:"hermit — sound: s", c:"high"},
+  {g:"ส", ph:"sɔɔ sʉ̌a", rt:"so suea", ip:"sɔː sɯ̌a", m:"tiger — sound: s", c:"high"},
+  {g:"ห", ph:"hɔɔ hìip", rt:"ho hip", ip:"hɔː hìːp", m:"chest (casket/box) — sound: h", c:"high"},
+  {g:"ฬ", ph:"lɔɔ jù-laa", rt:"lo chula", ip:"lɔː tɕùlaː", m:"kite — sound: l", c:"low"},
+  {g:"อ", ph:"ɔɔ àang", rt:"o ang", ip:"ʔɔː ʔàːŋ", m:"basin — silent / vowel carrier", c:"mid"},
+  {g:"ฮ", ph:"hɔɔ nók-hûuk", rt:"ho nokhuk", ip:"hɔː nók hûːk", m:"owl — sound: h", c:"low"}
+];
+
+/* ---------- LEVEL 2: CONSONANT CLASSES ---------- */
+DATA.classes = {
+  mid: ["ก","จ","ฎ","ฏ","ด","ต","บ","ป","อ"],
+  high: ["ข","ฃ","ฉ","ฐ","ถ","ผ","ฝ","ศ","ษ","ส","ห"],
+  low: ["ค","ฅ","ฆ","ง","ช","ซ","ฌ","ญ","ฑ","ฒ","ณ","ท","ธ","น","พ","ฟ","ภ","ม","ย","ร","ล","ว","ฬ","ฮ"]
+};
+
+/* ---------- LEVEL 3: VOWELS (grouped) ---------- */
+/* placeholder ◌ shows where consonant sits; we use ก as the carrier in examples */
+DATA.vowelGroups = [
+  {
+    id:"short_long",
+    title:"Simple Vowels",
+    th:"สระเดี่ยว (สั้น–ยาว)",
+    desc:"The basic single vowels, in short and long pairs.",
+    cards:[
+      {g:"–ะ", ph:"a", rt:"a", ip:"a", m:"short a (sara a)"},
+      {g:"–า", ph:"aa", rt:"a", ip:"aː", m:"long aa (sara aa)"},
+      {g:"–ิ", ph:"i", rt:"i", ip:"i", m:"short i (sara i)"},
+      {g:"–ี", ph:"ii", rt:"i", ip:"iː", m:"long ee (sara ii)"},
+      {g:"–ึ", ph:"ʉ", rt:"ue", ip:"ɯ", m:"short ue (sara ue)"},
+      {g:"–ื", ph:"ʉʉ", rt:"ue", ip:"ɯː", m:"long uue (sara uue)"},
+      {g:"–ุ", ph:"u", rt:"u", ip:"u", m:"short u (sara u)"},
+      {g:"–ู", ph:"uu", rt:"u", ip:"uː", m:"long uu (sara uu)"},
+      {g:"เ–ะ", ph:"e", rt:"e", ip:"e", m:"short e (sara e)"},
+      {g:"เ–", ph:"ee", rt:"e", ip:"eː", m:"long ay (sara e)"},
+      {g:"แ–ะ", ph:"ɛ", rt:"ae", ip:"ɛ", m:"short ae (sara ae)"},
+      {g:"แ–", ph:"ɛɛ", rt:"ae", ip:"ɛː", m:"long ae (sara ae)"},
+      {g:"โ–ะ", ph:"o", rt:"o", ip:"o", m:"short o (sara o)"},
+      {g:"โ–", ph:"oo", rt:"o", ip:"oː", m:"long oh (sara o)"},
+      {g:"เ–าะ", ph:"ɔ", rt:"o", ip:"ɔ", m:"short aw (sara o / aw)"},
+      {g:"–อ", ph:"ɔɔ", rt:"o", ip:"ɔː", m:"long aw (sara aw)"},
+      {g:"เ–อะ", ph:"ə", rt:"oe", ip:"ɤ", m:"short oe (sara oe)"},
+      {g:"เ–อ", ph:"əə", rt:"oe", ip:"ɤː", m:"long oe (sara oe)"}
+    ]
+  },
+  {
+    id:"diphthong",
+    title:"Diphthongs",
+    th:"สระประสม",
+    desc:"Vowels that glide between two sounds.",
+    cards:[
+      {g:"เ–ียะ", ph:"ia", rt:"ia", ip:"ia", m:"short ia (sara ia)"},
+      {g:"เ–ีย", ph:"iia", rt:"ia", ip:"iːa", m:"long ia (sara ia)"},
+      {g:"เ–ือะ", ph:"ʉa", rt:"uea", ip:"ɯa", m:"short uea (sara uea)"},
+      {g:"เ–ือ", ph:"ʉʉa", rt:"uea", ip:"ɯːa", m:"long uea (sara uea)"},
+      {g:"–ัวะ", ph:"ua", rt:"ua", ip:"ua", m:"short ua (sara ua)"},
+      {g:"–ัว", ph:"uua", rt:"ua", ip:"uːa", m:"long ua (sara ua)"}
+    ]
+  },
+  {
+    id:"extra",
+    title:"Special & Extra Vowels",
+    th:"สระเกิน",
+    desc:"Vowels that include a consonant sound built in.",
+    cards:[
+      {g:"–ำ", ph:"am", rt:"am", ip:"am", m:"am (sara am)"},
+      {g:"ใ–", ph:"ai", rt:"ai", ip:"aj", m:"ai (sara ai mai muan)"},
+      {g:"ไ–", ph:"ai", rt:"ai", ip:"aj", m:"ai (sara ai mai malai)"},
+      {g:"เ–า", ph:"ao", rt:"ao", ip:"aw", m:"ao (sara ao)"},
+      {g:"ฤ", ph:"rʉ / ri / rəə", rt:"rue", ip:"rɯ", m:"rue (vocalic r)"},
+      {g:"ฤๅ", ph:"rʉʉ", rt:"rue", ip:"rɯː", m:"long rue"},
+      {g:"ฦ", ph:"lʉ", rt:"lue", ip:"lɯ", m:"lue (vocalic l, archaic)"},
+      {g:"ฦๅ", ph:"lʉʉ", rt:"lue", ip:"lɯː", m:"long lue (archaic)"}
+    ]
+  }
+];
+
+/* ---------- LEVEL 4: CONSONANT + VOWEL SYLLABLES (curated, verified) ---------- */
+DATA.syllables = [
+  {g:"กะ", ph:"gà", rt:"ka", ip:"kàʔ", m:"(syllable) ka"},
+  {g:"กา", ph:"gaa", rt:"ka", ip:"kaː", m:"crow"},
+  {g:"กิ", ph:"gì", rt:"ki", ip:"kìʔ", m:"(syllable) ki"},
+  {g:"กี", ph:"gii", rt:"ki", ip:"kiː", m:"(syllable) kee"},
+  {g:"กุ", ph:"gù", rt:"ku", ip:"kùʔ", m:"(syllable) ku"},
+  {g:"กู", ph:"guu", rt:"ku", ip:"kuː", m:"I/me (very informal)"},
+  {g:"กือ", ph:"gʉʉ", rt:"kue", ip:"kɯː", m:"(syllable) kue"},
+  {g:"เก", ph:"gee", rt:"ke", ip:"keː", m:"(syllable) kay"},
+  {g:"แก", ph:"gɛɛ", rt:"kae", ip:"kɛː", m:"you (informal) / to fix"},
+  {g:"โก", ph:"goo", rt:"ko", ip:"koː", m:"(syllable) koh"},
+  {g:"มา", ph:"maa", rt:"ma", ip:"maː", m:"to come"},
+  {g:"มี", ph:"mii", rt:"mi", ip:"miː", m:"to have"},
+  {g:"มือ", ph:"mʉʉ", rt:"mue", ip:"mɯː", m:"hand"},
+  {g:"นา", ph:"naa", rt:"na", ip:"naː", m:"rice field"},
+  {g:"นี", ph:"nii", rt:"ni", ip:"niː", m:"(syllable) nee"},
+  {g:"ดี", ph:"dii", rt:"di", ip:"diː", m:"good"},
+  {g:"ดู", ph:"duu", rt:"du", ip:"duː", m:"to look / watch"},
+  {g:"ตา", ph:"taa", rt:"ta", ip:"taː", m:"eye / grandfather"},
+  {g:"ตี", ph:"tii", rt:"ti", ip:"tiː", m:"to hit"},
+  {g:"ปู", ph:"puu", rt:"pu", ip:"puː", m:"crab"},
+  {g:"ปี", ph:"pii", rt:"pi", ip:"piː", m:"year"},
+  {g:"บา", ph:"baa", rt:"ba", ip:"baː", m:"(syllable) ba"},
+  {g:"โต", ph:"too", rt:"to", ip:"toː", m:"big / to grow"},
+  {g:"เท", ph:"thee", rt:"the", ip:"tʰeː", m:"to pour"},
+  {g:"ทำ", ph:"tham", rt:"tham", ip:"tʰam", m:"to do / make"},
+  {g:"นำ", ph:"nam", rt:"nam", ip:"nam", m:"to lead"},
+  {g:"ไป", ph:"pai", rt:"pai", ip:"paj", m:"to go"},
+  {g:"ใจ", ph:"jai", rt:"chai", ip:"tɕaj", m:"heart / mind"},
+  {g:"เรา", ph:"rao", rt:"rao", ip:"raw", m:"we / us"},
+  {g:"เขา", ph:"khǎo", rt:"khao", ip:"kʰǎw", m:"he / she / they"},
+  {g:"ดำ", ph:"dam", rt:"dam", ip:"dam", m:"black"},
+  {g:"ลม", ph:"lom", rt:"lom", ip:"lom", m:"wind"}
+];
+
+/* ---------- LEVEL 5: TONES ---------- */
+DATA.toneMarks = [
+  {g:"–่", ph:"mái èek", rt:"mai ek", ip:"màj ʔèːk", m:"1st tone mark"},
+  {g:"–้", ph:"mái thoo", rt:"mai tho", ip:"màj tʰoː", m:"2nd tone mark"},
+  {g:"–๊", ph:"mái trii", rt:"mai tri", ip:"màj triː", m:"3rd tone mark"},
+  {g:"–๋", ph:"mái jàt-tà-waa", rt:"mai chattawa", ip:"màj tɕàttàwaː", m:"4th tone mark"}
+];
+
+DATA.toneExamples = [
+  {g:"คา", ph:"khaa (mid)", rt:"kha", ip:"kʰaː˧", m:"to be stuck — MID tone", tone:"mid"},
+  {g:"ข่า", ph:"khàa (low)", rt:"kha", ip:"kʰàː˨˩", m:"galangal — LOW tone", tone:"low"},
+  {g:"ข้า", ph:"khâa (falling)", rt:"kha", ip:"kʰâː˥˩", m:"servant / I — FALLING tone", tone:"falling"},
+  {g:"ค้า", ph:"kháa (high)", rt:"kha", ip:"kʰáː˦˥", m:"to trade — HIGH tone", tone:"high"},
+  {g:"ขา", ph:"khǎa (rising)", rt:"kha", ip:"kʰǎː˩˩˦", m:"leg — RISING tone", tone:"rising"}
+];
+
+/* ---------- LEVEL 6: SIMPLE WORDS ---------- */
+DATA.words = [
+  {g:"สวัสดี", ph:"sà-wàt-dii", rt:"sawatdi", ip:"sàwàtdiː", m:"hello / goodbye", cat:"greetings"},
+  {g:"ขอบคุณ", ph:"khɔ̀ɔp-khun", rt:"khopkhun", ip:"kʰɔ̀ːpkʰun", m:"thank you", cat:"greetings"},
+  {g:"ขอโทษ", ph:"khɔ̌ɔ-thôot", rt:"khotho", ip:"kʰɔ̌ːtʰôːt", m:"sorry / excuse me", cat:"greetings"},
+  {g:"ไม่เป็นไร", ph:"mâi-pen-rai", rt:"maipenrai", ip:"mâjpenraj", m:"it's okay / no problem", cat:"greetings"},
+  {g:"ยินดี", ph:"yin-dii", rt:"yindi", ip:"jindiː", m:"glad / pleased", cat:"greetings"},
+  {g:"ลาก่อน", ph:"laa-gɔ̀ɔn", rt:"lakon", ip:"laːkɔ̀ːn", m:"goodbye", cat:"greetings"},
+  {g:"สบายดี", ph:"sà-baai-dii", rt:"sabaidi", ip:"sàbaːjdiː", m:"fine / doing well", cat:"greetings"},
+  {g:"ครับ", ph:"khráp", rt:"khrap", ip:"kʰráp", m:"polite particle (male)", cat:"greetings"},
+  {g:"ค่ะ", ph:"khâ", rt:"kha", ip:"kʰâ", m:"polite particle (female)", cat:"greetings"},
+  {g:"เชิญ", ph:"chəən", rt:"choen", ip:"tɕʰɤːn", m:"please / go ahead", cat:"greetings"},
+  {g:"ฉัน", ph:"chǎn", rt:"chan", ip:"tɕʰǎn", m:"I / me (female/informal)", cat:"pronouns"},
+  {g:"ผม", ph:"phǒm", rt:"phom", ip:"pʰǒm", m:"I / me (male)", cat:"pronouns"},
+  {g:"คุณ", ph:"khun", rt:"khun", ip:"kʰun", m:"you (polite)", cat:"pronouns"},
+  {g:"เรา", ph:"rao", rt:"rao", ip:"raw", m:"we / us", cat:"pronouns"},
+  {g:"เขา", ph:"khǎo", rt:"khao", ip:"kʰǎw", m:"he / she / they", cat:"pronouns"},
+  {g:"มัน", ph:"man", rt:"man", ip:"man", m:"it", cat:"pronouns"},
+  {g:"พวกเขา", ph:"phûak-khǎo", rt:"phuakkhao", ip:"pʰûak kʰǎw", m:"they / them", cat:"pronouns"},
+  {g:"ทุกคน", ph:"thúk-khon", rt:"thukkhon", ip:"tʰúk kʰon", m:"everyone", cat:"pronouns"},
+  {g:"ใคร", ph:"khrai", rt:"khrai", ip:"kʰraj", m:"who", cat:"pronouns"},
+  {g:"ของฉัน", ph:"khɔ̌ɔng-chǎn", rt:"khong chan", ip:"kʰɔ̌ːŋ tɕʰǎn", m:"mine / my", cat:"pronouns"},
+  {g:"อะไร", ph:"à-rai", rt:"arai", ip:"ʔàraj", m:"what", cat:"questions"},
+  {g:"ที่ไหน", ph:"thîi-nǎi", rt:"thinai", ip:"tʰîːnǎj", m:"where", cat:"questions"},
+  {g:"เมื่อไหร่", ph:"mʉ̂a-rài", rt:"muearai", ip:"mɯ̂aràj", m:"when", cat:"questions"},
+  {g:"ทำไม", ph:"tham-mai", rt:"thammai", ip:"tʰammaj", m:"why", cat:"questions"},
+  {g:"อย่างไร", ph:"yàang-rai", rt:"yangrai", ip:"jàːŋraj", m:"how", cat:"questions"},
+  {g:"เท่าไหร่", ph:"thâo-rài", rt:"thaorai", ip:"tʰâwràj", m:"how much / how many", cat:"questions"},
+  {g:"กี่", ph:"gìi", rt:"ki", ip:"kìː", m:"how many", cat:"questions"},
+  {g:"ไหน", ph:"nǎi", rt:"nai", ip:"nǎj", m:"which", cat:"questions"},
+  {g:"ศูนย์", ph:"sǔun", rt:"sun", ip:"sǔːn", m:"zero (0)", cat:"numbers"},
+  {g:"หนึ่ง", ph:"nʉ̀ng", rt:"nueng", ip:"nɯ̀ŋ", m:"one (1)", cat:"numbers"},
+  {g:"สอง", ph:"sɔ̌ɔng", rt:"song", ip:"sɔ̌ːŋ", m:"two (2)", cat:"numbers"},
+  {g:"สาม", ph:"sǎam", rt:"sam", ip:"sǎːm", m:"three (3)", cat:"numbers"},
+  {g:"สี่", ph:"sìi", rt:"si", ip:"sìː", m:"four (4)", cat:"numbers"},
+  {g:"ห้า", ph:"hâa", rt:"ha", ip:"hâː", m:"five (5)", cat:"numbers"},
+  {g:"หก", ph:"hòk", rt:"hok", ip:"hòk", m:"six (6)", cat:"numbers"},
+  {g:"เจ็ด", ph:"jèt", rt:"chet", ip:"tɕèt", m:"seven (7)", cat:"numbers"},
+  {g:"แปด", ph:"pɛ̀ɛt", rt:"paet", ip:"pɛ̀ːt", m:"eight (8)", cat:"numbers"},
+  {g:"เก้า", ph:"gâo", rt:"kao", ip:"kâw", m:"nine (9)", cat:"numbers"},
+  {g:"สิบ", ph:"sìp", rt:"sip", ip:"sìp", m:"ten (10)", cat:"numbers"},
+  {g:"ร้อย", ph:"rɔ́ɔi", rt:"roi", ip:"rɔ́ːj", m:"hundred", cat:"numbers"},
+  {g:"พัน", ph:"phan", rt:"phan", ip:"pʰan", m:"thousand", cat:"numbers"},
+  {g:"หมื่น", ph:"mʉ̀ʉn", rt:"muen", ip:"mɯ̀ːn", m:"ten thousand", cat:"numbers"},
+  {g:"แสน", ph:"sɛ̌ɛn", rt:"saen", ip:"sɛ̌ːn", m:"hundred thousand", cat:"numbers"},
+  {g:"ล้าน", ph:"láan", rt:"lan", ip:"láːn", m:"million", cat:"numbers"},
+  {g:"วันนี้", ph:"wan-níi", rt:"wanni", ip:"wanníː", m:"today", cat:"time"},
+  {g:"พรุ่งนี้", ph:"phrûng-níi", rt:"phrungni", ip:"pʰrûŋníː", m:"tomorrow", cat:"time"},
+  {g:"เมื่อวาน", ph:"mʉ̂a-waan", rt:"mueawan", ip:"mɯ̂awaːn", m:"yesterday", cat:"time"},
+  {g:"ตอนเช้า", ph:"tɔɔn-cháao", rt:"tonchao", ip:"tɔːn tɕʰáːw", m:"morning", cat:"time"},
+  {g:"ตอนบ่าย", ph:"tɔɔn-bàai", rt:"tonbai", ip:"tɔːn bàːj", m:"afternoon", cat:"time"},
+  {g:"ตอนเย็น", ph:"tɔɔn-yen", rt:"tonyen", ip:"tɔːn jen", m:"evening", cat:"time"},
+  {g:"กลางคืน", ph:"glaang-khʉʉn", rt:"klangkhuen", ip:"klaːŋ kʰɯːn", m:"night", cat:"time"},
+  {g:"ชั่วโมง", ph:"chûa-moong", rt:"chuamong", ip:"tɕʰûamoːŋ", m:"hour", cat:"time"},
+  {g:"นาที", ph:"naa-thii", rt:"nathi", ip:"naːtʰiː", m:"minute", cat:"time"},
+  {g:"วินาที", ph:"wí-naa-thii", rt:"winathi", ip:"wínaːtʰiː", m:"second", cat:"time"},
+  {g:"วัน", ph:"wan", rt:"wan", ip:"wan", m:"day", cat:"time"},
+  {g:"สัปดาห์", ph:"sàp-daa", rt:"sapda", ip:"sàpdaː", m:"week", cat:"time"},
+  {g:"เดือน", ph:"dʉan", rt:"duean", ip:"dɯan", m:"month", cat:"time"},
+  {g:"ปี", ph:"pii", rt:"pi", ip:"piː", m:"year", cat:"time"},
+  {g:"เวลา", ph:"wee-laa", rt:"wela", ip:"weːlaː", m:"time", cat:"time"},
+  {g:"ตอนนี้", ph:"tɔɔn-níi", rt:"tonni", ip:"tɔːnníː", m:"now", cat:"time"},
+  {g:"พ่อ", ph:"phɔ̂ɔ", rt:"pho", ip:"pʰɔ̂ː", m:"father", cat:"family"},
+  {g:"แม่", ph:"mɛ̂ɛ", rt:"mae", ip:"mɛ̂ː", m:"mother", cat:"family"},
+  {g:"พี่", ph:"phîi", rt:"phi", ip:"pʰîː", m:"older sibling", cat:"family"},
+  {g:"น้อง", ph:"nɔ́ɔng", rt:"nong", ip:"nɔ́ːŋ", m:"younger sibling", cat:"family"},
+  {g:"ลูก", ph:"lûuk", rt:"luk", ip:"lûːk", m:"child / offspring", cat:"family"},
+  {g:"ปู่", ph:"pùu", rt:"pu", ip:"pùː", m:"grandfather (paternal)", cat:"family"},
+  {g:"ย่า", ph:"yâa", rt:"ya", ip:"jâː", m:"grandmother (paternal)", cat:"family"},
+  {g:"ตา", ph:"taa", rt:"ta", ip:"taː", m:"grandfather (maternal) / eye", cat:"family"},
+  {g:"ยาย", ph:"yaai", rt:"yai", ip:"jaːj", m:"grandmother (maternal)", cat:"family"},
+  {g:"สามี", ph:"sǎa-mii", rt:"sami", ip:"sǎːmiː", m:"husband", cat:"family"},
+  {g:"ภรรยา", ph:"phan-rá-yaa", rt:"phanraya", ip:"pʰanrájaː", m:"wife", cat:"family"},
+  {g:"เพื่อน", ph:"phʉ̂an", rt:"phuean", ip:"pʰɯ̂an", m:"friend", cat:"family"},
+  {g:"คน", ph:"khon", rt:"khon", ip:"kʰon", m:"person", cat:"people"},
+  {g:"ผู้ชาย", ph:"phûu-chaai", rt:"phuchai", ip:"pʰûː tɕʰaːj", m:"man", cat:"people"},
+  {g:"ผู้หญิง", ph:"phûu-yǐng", rt:"phuying", ip:"pʰûː jǐŋ", m:"woman", cat:"people"},
+  {g:"เด็ก", ph:"dèk", rt:"dek", ip:"dèk", m:"child / kid", cat:"people"},
+  {g:"ครู", ph:"khruu", rt:"khru", ip:"kʰruː", m:"teacher", cat:"people"},
+  {g:"นักเรียน", ph:"nák-rian", rt:"nakrian", ip:"nákrian", m:"student", cat:"people"},
+  {g:"หมอ", ph:"mɔ̌ɔ", rt:"mo", ip:"mɔ̌ː", m:"doctor", cat:"people"},
+  {g:"ตำรวจ", ph:"tam-rùat", rt:"tamruat", ip:"tamrùat", m:"police", cat:"people"},
+  {g:"หัว", ph:"hǔa", rt:"hua", ip:"hǔa", m:"head", cat:"body"},
+  {g:"ผม(เส้นผม)", ph:"phǒm", rt:"phom", ip:"pʰǒm", m:"hair", cat:"body"},
+  {g:"หน้า", ph:"nâa", rt:"na", ip:"nâː", m:"face", cat:"body"},
+  {g:"ตา(ดวงตา)", ph:"taa", rt:"ta", ip:"taː", m:"eye", cat:"body"},
+  {g:"หู", ph:"hǔu", rt:"hu", ip:"hǔː", m:"ear", cat:"body"},
+  {g:"จมูก", ph:"jà-mùuk", rt:"chamuk", ip:"tɕàmùːk", m:"nose", cat:"body"},
+  {g:"ปาก", ph:"pàak", rt:"pak", ip:"pàːk", m:"mouth", cat:"body"},
+  {g:"ฟัน", ph:"fan", rt:"fan", ip:"fan", m:"tooth", cat:"body"},
+  {g:"มือ", ph:"mʉʉ", rt:"mue", ip:"mɯː", m:"hand", cat:"body"},
+  {g:"เท้า", ph:"tháo", rt:"thao", ip:"tʰáw", m:"foot", cat:"body"},
+  {g:"แขน", ph:"khɛ̌ɛn", rt:"khaen", ip:"kʰɛ̌ːn", m:"arm", cat:"body"},
+  {g:"ขา", ph:"khǎa", rt:"kha", ip:"kʰǎː", m:"leg", cat:"body"},
+  {g:"ท้อง", ph:"thɔ́ɔng", rt:"thong", ip:"tʰɔ́ːŋ", m:"stomach / belly", cat:"body"},
+  {g:"หัวใจ", ph:"hǔa-jai", rt:"huachai", ip:"hǔa tɕaj", m:"heart", cat:"body"},
+  {g:"ข้าว", ph:"khâao", rt:"khao", ip:"kʰâːw", m:"rice", cat:"food"},
+  {g:"น้ำ", ph:"náam", rt:"nam", ip:"náːm", m:"water", cat:"food"},
+  {g:"อาหาร", ph:"aa-hǎan", rt:"ahan", ip:"ʔaːhǎːn", m:"food", cat:"food"},
+  {g:"เนื้อ", ph:"nʉ́a", rt:"nuea", ip:"nɯ́a", m:"meat / beef", cat:"food"},
+  {g:"หมู", ph:"mǔu", rt:"mu", ip:"mǔː", m:"pork / pig", cat:"food"},
+  {g:"ไก่", ph:"gài", rt:"kai", ip:"kàj", m:"chicken", cat:"food"},
+  {g:"ปลา", ph:"plaa", rt:"pla", ip:"plaː", m:"fish", cat:"food"},
+  {g:"ไข่", ph:"khài", rt:"khai", ip:"kʰàj", m:"egg", cat:"food"},
+  {g:"ผัก", ph:"phàk", rt:"phak", ip:"pʰàk", m:"vegetable", cat:"food"},
+  {g:"ผลไม้", ph:"phǒn-lá-máai", rt:"phonlamai", ip:"pʰǒnlámáːj", m:"fruit", cat:"food"},
+  {g:"เกลือ", ph:"glʉa", rt:"kluea", ip:"klɯa", m:"salt", cat:"food"},
+  {g:"น้ำตาล", ph:"nám-taan", rt:"namtan", ip:"námtaːn", m:"sugar", cat:"food"},
+  {g:"พริก", ph:"phrík", rt:"phrik", ip:"pʰrík", m:"chili", cat:"food"},
+  {g:"กาแฟ", ph:"gaa-fɛɛ", rt:"kafae", ip:"kaːfɛː", m:"coffee", cat:"food"},
+  {g:"ชา", ph:"chaa", rt:"cha", ip:"tɕʰaː", m:"tea", cat:"food"},
+  {g:"นม", ph:"nom", rt:"nom", ip:"nom", m:"milk", cat:"food"},
+  {g:"เบียร์", ph:"bia", rt:"bia", ip:"bia", m:"beer", cat:"food"},
+  {g:"ขนม", ph:"khà-nǒm", rt:"khanom", ip:"kʰànǒm", m:"snack / sweet", cat:"food"},
+  {g:"ก๋วยเตี๋ยว", ph:"gǔai-tǐao", rt:"kuaitiao", ip:"kǔaj tǐaw", m:"noodles", cat:"food"},
+  {g:"อร่อย", ph:"à-rɔ̀i", rt:"aroi", ip:"ʔàrɔ̀j", m:"delicious", cat:"food"},
+  {g:"หิว", ph:"hǐu", rt:"hiu", ip:"hǐw", m:"hungry", cat:"food"},
+  {g:"อิ่ม", ph:"ìm", rt:"im", ip:"ʔìm", m:"full (from eating)", cat:"food"},
+  {g:"กิน", ph:"gin", rt:"kin", ip:"kin", m:"to eat", cat:"verbs"},
+  {g:"ดื่ม", ph:"dʉ̀ʉm", rt:"duem", ip:"dɯ̀ːm", m:"to drink", cat:"verbs"},
+  {g:"ไป", ph:"pai", rt:"pai", ip:"paj", m:"to go", cat:"verbs"},
+  {g:"มา", ph:"maa", rt:"ma", ip:"maː", m:"to come", cat:"verbs"},
+  {g:"นอน", ph:"nɔɔn", rt:"non", ip:"nɔːn", m:"to sleep / lie down", cat:"verbs"},
+  {g:"ตื่น", ph:"tʉ̀ʉn", rt:"tuen", ip:"tɯ̀ːn", m:"to wake up", cat:"verbs"},
+  {g:"พูด", ph:"phûut", rt:"phut", ip:"pʰûːt", m:"to speak", cat:"verbs"},
+  {g:"ฟัง", ph:"fang", rt:"fang", ip:"faŋ", m:"to listen", cat:"verbs"},
+  {g:"อ่าน", ph:"àan", rt:"an", ip:"ʔàːn", m:"to read", cat:"verbs"},
+  {g:"เขียน", ph:"khǐan", rt:"khian", ip:"kʰǐan", m:"to write", cat:"verbs"},
+  {g:"ดู", ph:"duu", rt:"du", ip:"duː", m:"to watch / look", cat:"verbs"},
+  {g:"เห็น", ph:"hěn", rt:"hen", ip:"hěn", m:"to see", cat:"verbs"},
+  {g:"ทำ", ph:"tham", rt:"tham", ip:"tʰam", m:"to do / make", cat:"verbs"},
+  {g:"ซื้อ", ph:"sʉ́ʉ", rt:"sue", ip:"sɯ́ː", m:"to buy", cat:"verbs"},
+  {g:"ขาย", ph:"khǎai", rt:"khai", ip:"kʰǎːj", m:"to sell", cat:"verbs"},
+  {g:"ให้", ph:"hâi", rt:"hai", ip:"hâj", m:"to give", cat:"verbs"},
+  {g:"เอา", ph:"ao", rt:"ao", ip:"aw", m:"to take / want", cat:"verbs"},
+  {g:"รัก", ph:"rák", rt:"rak", ip:"rák", m:"to love", cat:"verbs"},
+  {g:"ชอบ", ph:"chɔ̂ɔp", rt:"chop", ip:"tɕʰɔ̂ːp", m:"to like", cat:"verbs"},
+  {g:"คิด", ph:"khít", rt:"khit", ip:"kʰít", m:"to think", cat:"verbs"},
+  {g:"รู้", ph:"rúu", rt:"ru", ip:"rúː", m:"to know", cat:"verbs"},
+  {g:"เข้าใจ", ph:"khâo-jai", rt:"khaochai", ip:"kʰâw tɕaj", m:"to understand", cat:"verbs"},
+  {g:"จำ", ph:"jam", rt:"cham", ip:"tɕam", m:"to remember", cat:"verbs"},
+  {g:"ลืม", ph:"lʉʉm", rt:"luem", ip:"lɯːm", m:"to forget", cat:"verbs"},
+  {g:"เดิน", ph:"dəən", rt:"doen", ip:"dɤːn", m:"to walk", cat:"verbs"},
+  {g:"วิ่ง", ph:"wîng", rt:"wing", ip:"wîŋ", m:"to run", cat:"verbs"},
+  {g:"นั่ง", ph:"nâng", rt:"nang", ip:"nâŋ", m:"to sit", cat:"verbs"},
+  {g:"ยืน", ph:"yʉʉn", rt:"yuen", ip:"jɯːn", m:"to stand", cat:"verbs"},
+  {g:"ทำงาน", ph:"tham-ngaan", rt:"thamngan", ip:"tʰamŋaːn", m:"to work", cat:"verbs"},
+  {g:"เล่น", ph:"lên", rt:"len", ip:"lên", m:"to play", cat:"verbs"},
+  {g:"เรียน", ph:"rian", rt:"rian", ip:"rian", m:"to study", cat:"verbs"},
+  {g:"ขับ", ph:"khàp", rt:"khap", ip:"kʰàp", m:"to drive", cat:"verbs"},
+  {g:"บิน", ph:"bin", rt:"bin", ip:"bin", m:"to fly", cat:"verbs"},
+  {g:"ว่าย", ph:"wâai", rt:"wai", ip:"wâːj", m:"to swim", cat:"verbs"},
+  {g:"ร้องเพลง", ph:"rɔ́ɔng-phleeng", rt:"rongphleng", ip:"rɔ́ːŋ pʰleːŋ", m:"to sing", cat:"verbs"},
+  {g:"หัวเราะ", ph:"hǔa-rɔ́", rt:"huaro", ip:"hǔaró", m:"to laugh", cat:"verbs"},
+  {g:"ร้องไห้", ph:"rɔ́ɔng-hâi", rt:"ronghai", ip:"rɔ́ːŋ hâj", m:"to cry", cat:"verbs"},
+  {g:"ช่วย", ph:"chûai", rt:"chuai", ip:"tɕʰûaj", m:"to help", cat:"verbs"},
+  {g:"รอ", ph:"rɔɔ", rt:"ro", ip:"rɔː", m:"to wait", cat:"verbs"},
+  {g:"เปิด", ph:"pəət", rt:"poet", ip:"pɤːt", m:"to open", cat:"verbs"},
+  {g:"ปิด", ph:"pìt", rt:"pit", ip:"pìt", m:"to close", cat:"verbs"},
+  {g:"ดี", ph:"dii", rt:"di", ip:"diː", m:"good", cat:"adjectives"},
+  {g:"ไม่ดี", ph:"mâi-dii", rt:"maidi", ip:"mâj diː", m:"bad / not good", cat:"adjectives"},
+  {g:"ใหญ่", ph:"yài", rt:"yai", ip:"jàj", m:"big", cat:"adjectives"},
+  {g:"เล็ก", ph:"lék", rt:"lek", ip:"lék", m:"small", cat:"adjectives"},
+  {g:"ยาว", ph:"yaao", rt:"yao", ip:"jaːw", m:"long", cat:"adjectives"},
+  {g:"สั้น", ph:"sân", rt:"san", ip:"sân", m:"short", cat:"adjectives"},
+  {g:"สูง", ph:"sǔung", rt:"sung", ip:"sǔːŋ", m:"tall / high", cat:"adjectives"},
+  {g:"เตี้ย", ph:"tîa", rt:"tia", ip:"tîa", m:"short (height)", cat:"adjectives"},
+  {g:"ร้อน", ph:"rɔ́ɔn", rt:"ron", ip:"rɔ́ːn", m:"hot", cat:"adjectives"},
+  {g:"หนาว", ph:"nǎao", rt:"nao", ip:"nǎːw", m:"cold (weather)", cat:"adjectives"},
+  {g:"เย็น", ph:"yen", rt:"yen", ip:"jen", m:"cool", cat:"adjectives"},
+  {g:"ใหม่", ph:"mài", rt:"mai", ip:"màj", m:"new", cat:"adjectives"},
+  {g:"เก่า", ph:"gào", rt:"kao", ip:"kàw", m:"old (things)", cat:"adjectives"},
+  {g:"เร็ว", ph:"reo", rt:"reo", ip:"rew", m:"fast", cat:"adjectives"},
+  {g:"ช้า", ph:"cháa", rt:"cha", ip:"tɕʰáː", m:"slow", cat:"adjectives"},
+  {g:"สวย", ph:"sǔai", rt:"suai", ip:"sǔaj", m:"beautiful", cat:"adjectives"},
+  {g:"น่ารัก", ph:"nâa-rák", rt:"narak", ip:"nâːrák", m:"cute", cat:"adjectives"},
+  {g:"แพง", ph:"phɛɛng", rt:"phaeng", ip:"pʰɛːŋ", m:"expensive", cat:"adjectives"},
+  {g:"ถูก", ph:"thùuk", rt:"thuk", ip:"tʰùːk", m:"cheap / correct", cat:"adjectives"},
+  {g:"ง่าย", ph:"ngâai", rt:"ngai", ip:"ŋâːj", m:"easy", cat:"adjectives"},
+  {g:"ยาก", ph:"yâak", rt:"yak", ip:"jâːk", m:"difficult", cat:"adjectives"},
+  {g:"มาก", ph:"mâak", rt:"mak", ip:"mâːk", m:"much / very", cat:"adjectives"},
+  {g:"น้อย", ph:"nɔ́ɔi", rt:"noi", ip:"nɔ́ːj", m:"little / few", cat:"adjectives"},
+  {g:"เยอะ", ph:"yə́", rt:"yoe", ip:"jɤ́", m:"a lot", cat:"adjectives"},
+  {g:"หนัก", ph:"nàk", rt:"nak", ip:"nàk", m:"heavy", cat:"adjectives"},
+  {g:"เบา", ph:"bao", rt:"bao", ip:"baw", m:"light (weight)", cat:"adjectives"},
+  {g:"สะอาด", ph:"sà-àat", rt:"saat", ip:"sàʔàːt", m:"clean", cat:"adjectives"},
+  {g:"สกปรก", ph:"sòk-gà-pròk", rt:"sokkaprok", ip:"sòkkàpròk", m:"dirty", cat:"adjectives"},
+  {g:"เหนื่อย", ph:"nʉ̀ai", rt:"nueai", ip:"nɯ̀aj", m:"tired", cat:"adjectives"},
+  {g:"ง่วง", ph:"ngûang", rt:"nguang", ip:"ŋûaŋ", m:"sleepy", cat:"adjectives"},
+  {g:"สนุก", ph:"sà-nùk", rt:"sanuk", ip:"sànùk", m:"fun", cat:"adjectives"},
+  {g:"สี", ph:"sǐi", rt:"si", ip:"sǐː", m:"color", cat:"colors"},
+  {g:"สีแดง", ph:"sǐi-dɛɛng", rt:"sidaeng", ip:"sǐː dɛːŋ", m:"red", cat:"colors"},
+  {g:"สีน้ำเงิน", ph:"sǐi-nám-ngəən", rt:"sinamngoen", ip:"sǐː námŋɤːn", m:"blue", cat:"colors"},
+  {g:"สีเขียว", ph:"sǐi-khǐao", rt:"sikhiao", ip:"sǐː kʰǐaw", m:"green", cat:"colors"},
+  {g:"สีเหลือง", ph:"sǐi-lʉ̌ang", rt:"silueang", ip:"sǐː lɯ̌aŋ", m:"yellow", cat:"colors"},
+  {g:"สีดำ", ph:"sǐi-dam", rt:"sidam", ip:"sǐː dam", m:"black", cat:"colors"},
+  {g:"สีขาว", ph:"sǐi-khǎao", rt:"sikhao", ip:"sǐː kʰǎːw", m:"white", cat:"colors"},
+  {g:"สีส้ม", ph:"sǐi-sôm", rt:"sisom", ip:"sǐː sôm", m:"orange", cat:"colors"},
+  {g:"สีชมพู", ph:"sǐi-chom-phuu", rt:"sichomphu", ip:"sǐː tɕʰompʰuː", m:"pink", cat:"colors"},
+  {g:"สีม่วง", ph:"sǐi-mûang", rt:"simuang", ip:"sǐː mûaŋ", m:"purple", cat:"colors"},
+  {g:"สีน้ำตาล", ph:"sǐi-nám-taan", rt:"sinamtan", ip:"sǐː námtaːn", m:"brown", cat:"colors"},
+  {g:"สีเทา", ph:"sǐi-thao", rt:"sithao", ip:"sǐː tʰaw", m:"gray", cat:"colors"},
+  {g:"หมา", ph:"mǎa", rt:"ma", ip:"mǎː", m:"dog", cat:"animals"},
+  {g:"แมว", ph:"mɛɛo", rt:"maeo", ip:"mɛːw", m:"cat", cat:"animals"},
+  {g:"นก", ph:"nók", rt:"nok", ip:"nók", m:"bird", cat:"animals"},
+  {g:"ช้าง", ph:"cháang", rt:"chang", ip:"tɕʰáːŋ", m:"elephant", cat:"animals"},
+  {g:"ม้า", ph:"máa", rt:"ma", ip:"máː", m:"horse", cat:"animals"},
+  {g:"วัว", ph:"wua", rt:"wua", ip:"wua", m:"cow", cat:"animals"},
+  {g:"เสือ", ph:"sʉ̌a", rt:"suea", ip:"sɯ̌a", m:"tiger", cat:"animals"},
+  {g:"ลิง", ph:"ling", rt:"ling", ip:"liŋ", m:"monkey", cat:"animals"},
+  {g:"งู", ph:"nguu", rt:"ngu", ip:"ŋuː", m:"snake", cat:"animals"},
+  {g:"ปลาวาฬ", ph:"plaa-waan", rt:"plawan", ip:"plaː waːn", m:"whale", cat:"animals"},
+  {g:"กบ", ph:"gòp", rt:"kop", ip:"kòp", m:"frog", cat:"animals"},
+  {g:"ผีเสื้อ", ph:"phǐi-sʉ̂a", rt:"phisuea", ip:"pʰǐː sɯ̂a", m:"butterfly", cat:"animals"},
+  {g:"บ้าน", ph:"bâan", rt:"ban", ip:"bâːn", m:"house / home", cat:"places"},
+  {g:"โรงเรียน", ph:"roong-rian", rt:"rongrian", ip:"roːŋrian", m:"school", cat:"places"},
+  {g:"โรงพยาบาล", ph:"roong-phá-yaa-baan", rt:"rongphayaban", ip:"roːŋ pʰájaːbaːn", m:"hospital", cat:"places"},
+  {g:"ตลาด", ph:"tà-làat", rt:"talat", ip:"tàlàːt", m:"market", cat:"places"},
+  {g:"ร้าน", ph:"ráan", rt:"ran", ip:"ráːn", m:"shop / store", cat:"places"},
+  {g:"ร้านอาหาร", ph:"ráan-aa-hǎan", rt:"ran ahan", ip:"ráːn ʔaːhǎːn", m:"restaurant", cat:"places"},
+  {g:"ธนาคาร", ph:"thá-naa-khaan", rt:"thanakhan", ip:"tʰánaːkʰaːn", m:"bank", cat:"places"},
+  {g:"สนามบิน", ph:"sà-nǎam-bin", rt:"sanambin", ip:"sànǎːmbin", m:"airport", cat:"places"},
+  {g:"สถานี", ph:"sà-thǎa-nii", rt:"sathani", ip:"sàtʰǎːniː", m:"station", cat:"places"},
+  {g:"ห้องน้ำ", ph:"hɔ̂ng-náam", rt:"hongnam", ip:"hɔ̂ŋnáːm", m:"bathroom / toilet", cat:"places"},
+  {g:"วัด", ph:"wát", rt:"wat", ip:"wát", m:"temple", cat:"places"},
+  {g:"เมือง", ph:"mʉang", rt:"mueang", ip:"mɯaŋ", m:"city / town", cat:"places"},
+  {g:"ประเทศ", ph:"prà-thêet", rt:"prathet", ip:"pràtʰêːt", m:"country", cat:"places"},
+  {g:"ถนน", ph:"thà-nǒn", rt:"thanon", ip:"tʰànǒn", m:"road / street", cat:"places"},
+  {g:"โรงแรม", ph:"roong-rɛɛm", rt:"rongraem", ip:"roːŋrɛːm", m:"hotel", cat:"places"},
+  {g:"ฟ้า", ph:"fáa", rt:"fa", ip:"fáː", m:"sky", cat:"nature"},
+  {g:"ดวงอาทิตย์", ph:"duang-aa-thít", rt:"duang athit", ip:"duaŋ ʔaːtʰít", m:"sun", cat:"nature"},
+  {g:"ดวงจันทร์", ph:"duang-jan", rt:"duang chan", ip:"duaŋ tɕan", m:"moon", cat:"nature"},
+  {g:"ดาว", ph:"daao", rt:"dao", ip:"daːw", m:"star", cat:"nature"},
+  {g:"ฝน", ph:"fǒn", rt:"fon", ip:"fǒn", m:"rain", cat:"nature"},
+  {g:"ลม", ph:"lom", rt:"lom", ip:"lom", m:"wind", cat:"nature"},
+  {g:"เมฆ", ph:"mêek", rt:"mek", ip:"mêːk", m:"cloud", cat:"nature"},
+  {g:"ทะเล", ph:"thá-lee", rt:"thale", ip:"tʰáleː", m:"sea", cat:"nature"},
+  {g:"ภูเขา", ph:"phuu-khǎo", rt:"phukhao", ip:"pʰuː kʰǎw", m:"mountain", cat:"nature"},
+  {g:"แม่น้ำ", ph:"mɛ̂ɛ-náam", rt:"maenam", ip:"mɛ̂ːnáːm", m:"river", cat:"nature"},
+  {g:"ต้นไม้", ph:"tôn-máai", rt:"tonmai", ip:"tônmáːj", m:"tree", cat:"nature"},
+  {g:"ดอกไม้", ph:"dɔ̀ɔk-máai", rt:"dokmai", ip:"dɔ̀ːkmáːj", m:"flower", cat:"nature"},
+  {g:"ไฟ", ph:"fai", rt:"fai", ip:"faj", m:"fire", cat:"nature"},
+  {g:"ดิน", ph:"din", rt:"din", ip:"din", m:"soil / earth", cat:"nature"},
+  {g:"รถ", ph:"rót", rt:"rot", ip:"rót", m:"car / vehicle", cat:"objects"},
+  {g:"โทรศัพท์", ph:"thoo-rá-sàp", rt:"thorasap", ip:"tʰoːrásàp", m:"telephone", cat:"objects"},
+  {g:"เงิน", ph:"ngəən", rt:"ngoen", ip:"ŋɤːn", m:"money", cat:"objects"},
+  {g:"หนังสือ", ph:"nǎng-sʉ̌ʉ", rt:"nangsue", ip:"nǎŋsɯ̌ː", m:"book", cat:"objects"},
+  {g:"โต๊ะ", ph:"tó", rt:"to", ip:"tó", m:"table", cat:"objects"},
+  {g:"เก้าอี้", ph:"gâo-îi", rt:"kaoi", ip:"kâw ʔîː", m:"chair", cat:"objects"},
+  {g:"ประตู", ph:"prà-tuu", rt:"pratu", ip:"pràtuː", m:"door", cat:"objects"},
+  {g:"หน้าต่าง", ph:"nâa-tàang", rt:"natang", ip:"nâːtàːŋ", m:"window", cat:"objects"},
+  {g:"เสื้อ", ph:"sʉ̂a", rt:"suea", ip:"sɯ̂a", m:"shirt / clothing", cat:"objects"},
+  {g:"กางเกง", ph:"gaang-geeng", rt:"kangkeng", ip:"kaːŋkeːŋ", m:"trousers", cat:"objects"},
+  {g:"รองเท้า", ph:"rɔɔng-tháao", rt:"rongthao", ip:"rɔːŋ tʰáːw", m:"shoes", cat:"objects"},
+  {g:"กระเป๋า", ph:"grà-pǎo", rt:"krapao", ip:"kràpǎw", m:"bag", cat:"objects"},
+  {g:"นาฬิกา", ph:"naa-lí-gaa", rt:"nalika", ip:"naːlíkaː", m:"clock / watch", cat:"objects"},
+  {g:"กุญแจ", ph:"gun-jɛɛ", rt:"kunchae", ip:"kuntɕɛː", m:"key", cat:"objects"},
+  {g:"ปากกา", ph:"pàak-gaa", rt:"pakka", ip:"pàːkkaː", m:"pen", cat:"objects"},
+  {g:"ดินสอ", ph:"din-sɔ̌ɔ", rt:"dinso", ip:"dinsɔ̌ː", m:"pencil", cat:"objects"},
+  {g:"คอมพิวเตอร์", ph:"khɔɔm-phíw-təə", rt:"khomphiutoe", ip:"kʰɔːmpʰiwtɤː", m:"computer", cat:"objects"},
+  {g:"ใช่", ph:"châi", rt:"chai", ip:"tɕʰâj", m:"yes / correct", cat:"phrases"},
+  {g:"ไม่", ph:"mâi", rt:"mai", ip:"mâj", m:"no / not", cat:"phrases"},
+  {g:"ไม่ใช่", ph:"mâi-châi", rt:"maichai", ip:"mâj tɕʰâj", m:"no / not correct", cat:"phrases"},
+  {g:"ได้", ph:"dâai", rt:"dai", ip:"dâːj", m:"can / okay", cat:"phrases"},
+  {g:"ไม่ได้", ph:"mâi-dâai", rt:"maidai", ip:"mâj dâːj", m:"cannot", cat:"phrases"},
+  {g:"ชื่อ", ph:"chʉ̂ʉ", rt:"chue", ip:"tɕʰɯ̂ː", m:"name", cat:"phrases"},
+  {g:"พูดอีกที", ph:"phûut-ìik-thii", rt:"phut ik thi", ip:"pʰûːt ʔìːk tʰiː", m:"say again", cat:"phrases"},
+  {g:"ช้าๆ", ph:"cháa-cháa", rt:"chacha", ip:"tɕʰáː tɕʰáː", m:"slowly", cat:"phrases"},
+  {g:"นิดหน่อย", ph:"nít-nɔ̀i", rt:"nitnoi", ip:"nít nɔ̀j", m:"a little", cat:"phrases"},
+  {g:"อยาก", ph:"yàak", rt:"yak", ip:"jàːk", m:"to want to", cat:"phrases"},
+  {g:"ต้องการ", ph:"tɔ̂ng-gaan", rt:"tongkan", ip:"tɔ̂ŋkaːn", m:"to need / want", cat:"phrases"},
+  {g:"ช่วยด้วย", ph:"chûai-dûai", rt:"chuaiduai", ip:"tɕʰûaj dûaj", m:"help!", cat:"phrases"},
+  {g:"อร่อยมาก", ph:"à-rɔ̀i-mâak", rt:"aroi mak", ip:"ʔàrɔ̀j mâːk", m:"very delicious", cat:"phrases"},
+  {g:"ซ้าย", ph:"sáai", rt:"sai", ip:"sáːj", m:"left", cat:"directions"},
+  {g:"ขวา", ph:"khwǎa", rt:"khwa", ip:"kʰwǎː", m:"right", cat:"directions"},
+  {g:"หน้า(ทิศ)", ph:"nâa", rt:"na", ip:"nâː", m:"front", cat:"directions"},
+  {g:"หลัง", ph:"lǎng", rt:"lang", ip:"lǎŋ", m:"back / behind", cat:"directions"},
+  {g:"บน", ph:"bon", rt:"bon", ip:"bon", m:"on / above", cat:"directions"},
+  {g:"ล่าง", ph:"lâang", rt:"lang", ip:"lâːŋ", m:"below / under", cat:"directions"},
+  {g:"ใน", ph:"nai", rt:"nai", ip:"naj", m:"in / inside", cat:"directions"},
+  {g:"นอก", ph:"nɔ̂ɔk", rt:"nok", ip:"nɔ̂ːk", m:"outside", cat:"directions"},
+  {g:"ใกล้", ph:"glâi", rt:"klai", ip:"klâj", m:"near", cat:"directions"},
+  {g:"ไกล", ph:"glai", rt:"klai", ip:"klaj", m:"far", cat:"directions"},
+  {g:"ตรง", ph:"trong", rt:"trong", ip:"troŋ", m:"straight", cat:"directions"},
+  {g:"ที่นี่", ph:"thîi-nîi", rt:"thini", ip:"tʰîːnîː", m:"here", cat:"directions"},
+  {g:"ที่นั่น", ph:"thîi-nân", rt:"thinan", ip:"tʰîːnân", m:"there", cat:"directions"},
+  {g:"และ", ph:"lɛ́", rt:"lae", ip:"lɛ́ʔ", m:"and", cat:"grammar"},
+  {g:"หรือ", ph:"rʉ̌ʉ", rt:"rue", ip:"rɯ̌ː", m:"or", cat:"grammar"},
+  {g:"แต่", ph:"tɛ̀ɛ", rt:"tae", ip:"tɛ̀ː", m:"but", cat:"grammar"},
+  {g:"เพราะ", ph:"phrɔ́", rt:"phro", ip:"pʰrɔ́ʔ", m:"because", cat:"grammar"},
+  {g:"ถ้า", ph:"thâa", rt:"tha", ip:"tʰâː", m:"if", cat:"grammar"},
+  {g:"กับ", ph:"gàp", rt:"kap", ip:"kàp", m:"with", cat:"grammar"},
+  {g:"ของ", ph:"khɔ̌ɔng", rt:"khong", ip:"kʰɔ̌ːŋ", m:"of / belonging to", cat:"grammar"},
+  {g:"ที่", ph:"thîi", rt:"thi", ip:"tʰîː", m:"that / which / at", cat:"grammar"},
+  {g:"จะ", ph:"jà", rt:"cha", ip:"tɕàʔ", m:"will (future)", cat:"grammar"},
+  {g:"แล้ว", ph:"lɛ́ɛo", rt:"laeo", ip:"lɛ́ːw", m:"already", cat:"grammar"},
+  {g:"ยัง", ph:"yang", rt:"yang", ip:"jaŋ", m:"still / yet", cat:"grammar"},
+  {g:"ก็", ph:"gɔ̂ɔ", rt:"ko", ip:"kɔ̂ː", m:"then / also", cat:"grammar"},
+  {g:"มาก(กว่า)", ph:"mâak-gwàa", rt:"makkwa", ip:"mâːk kwàː", m:"more than", cat:"grammar"},
+  {g:"ที่สุด", ph:"thîi-sùt", rt:"thisut", ip:"tʰîːsùt", m:"most / -est", cat:"grammar"},
+  {g:"นี้", ph:"níi", rt:"ni", ip:"níː", m:"this", cat:"grammar"},
+  {g:"นั้น", ph:"nán", rt:"nan", ip:"nán", m:"that", cat:"grammar"},
+  {g:"ดีใจ", ph:"dii-jai", rt:"dichai", ip:"diː tɕaj", m:"happy / glad", cat:"feelings"},
+  {g:"เสียใจ", ph:"sǐa-jai", rt:"siachai", ip:"sǐa tɕaj", m:"sad / sorry", cat:"feelings"},
+  {g:"โกรธ", ph:"gròot", rt:"krot", ip:"kròːt", m:"angry", cat:"feelings"},
+  {g:"กลัว", ph:"glua", rt:"klua", ip:"klua", m:"afraid", cat:"feelings"},
+  {g:"เบื่อ", ph:"bʉ̀a", rt:"buea", ip:"bɯ̀a", m:"bored", cat:"feelings"},
+  {g:"ตกใจ", ph:"tòk-jai", rt:"tokchai", ip:"tòk tɕaj", m:"startled / shocked", cat:"feelings"},
+  {g:"สบาย", ph:"sà-baai", rt:"sabai", ip:"sàbaːj", m:"comfortable / well", cat:"feelings"},
+  {g:"ป่วย", ph:"pùai", rt:"puai", ip:"pùaj", m:"sick", cat:"feelings"},
+  {g:"เจ็บ", ph:"jèp", rt:"chep", ip:"tɕèp", m:"hurt / painful", cat:"feelings"},
+  {g:"รัก(ความรัก)", ph:"khwaam-rák", rt:"khwam rak", ip:"kʰwaːm rák", m:"love (noun)", cat:"feelings"},
+  {g:"วันจันทร์", ph:"wan-jan", rt:"wan chan", ip:"wan tɕan", m:"Monday", cat:"days"},
+  {g:"วันอังคาร", ph:"wan-ang-khaan", rt:"wan angkhan", ip:"wan ʔaŋkʰaːn", m:"Tuesday", cat:"days"},
+  {g:"วันพุธ", ph:"wan-phút", rt:"wan phut", ip:"wan pʰút", m:"Wednesday", cat:"days"},
+  {g:"วันพฤหัส", ph:"wan-phá-rʉ́-hàt", rt:"wan pharuehat", ip:"wan pʰárɯ́hàt", m:"Thursday", cat:"days"},
+  {g:"วันศุกร์", ph:"wan-sùk", rt:"wan suk", ip:"wan sùk", m:"Friday", cat:"days"},
+  {g:"วันเสาร์", ph:"wan-sǎo", rt:"wan sao", ip:"wan sǎw", m:"Saturday", cat:"days"},
+  {g:"วันอาทิตย์", ph:"wan-aa-thít", rt:"wan athit", ip:"wan ʔaːtʰít", m:"Sunday", cat:"days"},
+  {g:"รถยนต์", ph:"rót-yon", rt:"rotyon", ip:"rótjon", m:"car", cat:"transport"},
+  {g:"รถเมล์", ph:"rót-mee", rt:"rotme", ip:"rótmeː", m:"bus", cat:"transport"},
+  {g:"รถไฟ", ph:"rót-fai", rt:"rotfai", ip:"rótfaj", m:"train", cat:"transport"},
+  {g:"เครื่องบิน", ph:"khrʉ̂ang-bin", rt:"khrueangbin", ip:"kʰrɯ̂aŋbin", m:"airplane", cat:"transport"},
+  {g:"เรือ", ph:"rʉa", rt:"ruea", ip:"rɯa", m:"boat", cat:"transport"},
+  {g:"จักรยาน", ph:"jàk-grà-yaan", rt:"chakkrayan", ip:"tɕàkkràjaːn", m:"bicycle", cat:"transport"},
+  {g:"มอเตอร์ไซค์", ph:"mɔɔ-təə-sai", rt:"motoesai", ip:"mɔːtɤːsaj", m:"motorcycle", cat:"transport"},
+  {g:"แท็กซี่", ph:"thɛ́k-sîi", rt:"thaeksi", ip:"tʰɛ́ksîː", m:"taxi", cat:"transport"},
+  {g:"อยู่", ph:"yùu", rt:"yu", ip:"jùː", m:"to be (located) / to stay", cat:"verbs"},
+  {g:"เป็น", ph:"pen", rt:"pen", ip:"pen", m:"to be (is/am/are)", cat:"verbs"},
+  {g:"มี", ph:"mii", rt:"mi", ip:"miː", m:"to have", cat:"verbs"},
+  {g:"ใช้", ph:"chái", rt:"chai", ip:"tɕʰáj", m:"to use", cat:"verbs"},
+  {g:"พบ", ph:"phóp", rt:"phop", ip:"pʰóp", m:"to meet / find", cat:"verbs"},
+  {g:"เจอ", ph:"jəə", rt:"choe", ip:"tɕɤː", m:"to meet / encounter", cat:"verbs"},
+  {g:"ถาม", ph:"thǎam", rt:"tham", ip:"tʰǎːm", m:"to ask", cat:"verbs"},
+  {g:"ตอบ", ph:"tɔ̀ɔp", rt:"top", ip:"tɔ̀ːp", m:"to answer", cat:"verbs"},
+  {g:"บอก", ph:"bɔ̀ɔk", rt:"bok", ip:"bɔ̀ːk", m:"to tell", cat:"verbs"},
+  {g:"เริ่ม", ph:"rə̂əm", rt:"roem", ip:"rɤ̂ːm", m:"to begin", cat:"verbs"},
+  {g:"จบ", ph:"jòp", rt:"chop", ip:"tɕòp", m:"to finish / end", cat:"verbs"},
+  {g:"หา", ph:"hǎa", rt:"ha", ip:"hǎː", m:"to look for", cat:"verbs"},
+  {g:"เลือก", ph:"lʉ̂ak", rt:"lueak", ip:"lɯ̂ak", m:"to choose", cat:"verbs"},
+  {g:"ส้มตำ", ph:"sôm-tam", rt:"somtam", ip:"sômtam", m:"papaya salad", cat:"food"},
+  {g:"ต้มยำ", ph:"tôm-yam", rt:"tomyam", ip:"tômjam", m:"tom yum soup", cat:"food"},
+  {g:"ผัดไทย", ph:"phàt-thai", rt:"phatthai", ip:"pʰàttʰaj", m:"pad thai", cat:"food"},
+  {g:"ขนมปัง", ph:"khà-nǒm-pang", rt:"khanompang", ip:"kʰànǒmpaŋ", m:"bread", cat:"food"},
+  {g:"ข้าวผัด", ph:"khâao-phàt", rt:"khaophat", ip:"kʰâːw pʰàt", m:"fried rice", cat:"food"},
+  {g:"ภาษา", ph:"phaa-sǎa", rt:"phasa", ip:"pʰaːsǎː", m:"language", cat:"misc"},
+  {g:"งาน", ph:"ngaan", rt:"ngan", ip:"ŋaːn", m:"work / job / event", cat:"misc"},
+  {g:"ปัญหา", ph:"pan-hǎa", rt:"panha", ip:"panhǎː", m:"problem", cat:"misc"},
+  {g:"เรื่อง", ph:"rʉ̂ang", rt:"rueang", ip:"rɯ̂aŋ", m:"story / matter", cat:"misc"},
+  {g:"ความฝัน", ph:"khwaam-fǎn", rt:"khwam fan", ip:"kʰwaːm fǎn", m:"dream", cat:"misc"},
+  {g:"ของขวัญ", ph:"khɔ̌ɔng-khwǎn", rt:"khong khwan", ip:"kʰɔ̌ːŋ kʰwǎn", m:"gift", cat:"misc"},
+  {g:"เพลง", ph:"phleeng", rt:"phleng", ip:"pʰleːŋ", m:"song", cat:"misc"},
+  {g:"รูป", ph:"rûup", rt:"rup", ip:"rûːp", m:"picture / photo", cat:"misc"}
+];
+
+
+
+/* ============================================================
+   THAI SYLLABLE GENERATOR
+   Builds consonant + vowel syllables, composes the written form,
+   and derives pronunciation (phonetic / RTGS / IPA) + tone
+   following the ไตรยางศ์ (three-class) tone rules for OPEN
+   syllables (no final consonant).
+   ============================================================ */
+
+/* --- consonant table: glyph, class, initial sound in each system --- */
+/* onset: ph (learner), rt (RTGS initial), ip (IPA initial) */
+const CONS = [
+  {g:"ก", cls:"mid",  ph:"g",  rt:"k",  ip:"k"},
+  {g:"ข", cls:"high", ph:"kh", rt:"kh", ip:"kʰ"},
+  {g:"ค", cls:"low",  ph:"kh", rt:"kh", ip:"kʰ"},
+  {g:"ฆ", cls:"low",  ph:"kh", rt:"kh", ip:"kʰ"},
+  {g:"ง", cls:"low",  ph:"ng", rt:"ng", ip:"ŋ"},
+  {g:"จ", cls:"mid",  ph:"j",  rt:"ch", ip:"tɕ"},
+  {g:"ฉ", cls:"high", ph:"ch", rt:"ch", ip:"tɕʰ"},
+  {g:"ช", cls:"low",  ph:"ch", rt:"ch", ip:"tɕʰ"},
+  {g:"ซ", cls:"low",  ph:"s",  rt:"s",  ip:"s"},
+  {g:"ฌ", cls:"low",  ph:"ch", rt:"ch", ip:"tɕʰ"},
+  {g:"ญ", cls:"low",  ph:"y",  rt:"y",  ip:"j"},
+  {g:"ฎ", cls:"mid",  ph:"d",  rt:"d",  ip:"d"},
+  {g:"ฏ", cls:"mid",  ph:"t",  rt:"t",  ip:"t"},
+  {g:"ฐ", cls:"high", ph:"th", rt:"th", ip:"tʰ"},
+  {g:"ฑ", cls:"low",  ph:"th", rt:"th", ip:"tʰ"},
+  {g:"ฒ", cls:"low",  ph:"th", rt:"th", ip:"tʰ"},
+  {g:"ณ", cls:"low",  ph:"n",  rt:"n",  ip:"n"},
+  {g:"ด", cls:"mid",  ph:"d",  rt:"d",  ip:"d"},
+  {g:"ต", cls:"mid",  ph:"t",  rt:"t",  ip:"t"},
+  {g:"ถ", cls:"high", ph:"th", rt:"th", ip:"tʰ"},
+  {g:"ท", cls:"low",  ph:"th", rt:"th", ip:"tʰ"},
+  {g:"ธ", cls:"low",  ph:"th", rt:"th", ip:"tʰ"},
+  {g:"น", cls:"low",  ph:"n",  rt:"n",  ip:"n"},
+  {g:"บ", cls:"mid",  ph:"b",  rt:"b",  ip:"b"},
+  {g:"ป", cls:"mid",  ph:"p",  rt:"p",  ip:"p"},
+  {g:"ผ", cls:"high", ph:"ph", rt:"ph", ip:"pʰ"},
+  {g:"ฝ", cls:"high", ph:"f",  rt:"f",  ip:"f"},
+  {g:"พ", cls:"low",  ph:"ph", rt:"ph", ip:"pʰ"},
+  {g:"ฟ", cls:"low",  ph:"f",  rt:"f",  ip:"f"},
+  {g:"ภ", cls:"low",  ph:"ph", rt:"ph", ip:"pʰ"},
+  {g:"ม", cls:"low",  ph:"m",  rt:"m",  ip:"m"},
+  {g:"ย", cls:"low",  ph:"y",  rt:"y",  ip:"j"},
+  {g:"ร", cls:"low",  ph:"r",  rt:"r",  ip:"r"},
+  {g:"ล", cls:"low",  ph:"l",  rt:"l",  ip:"l"},
+  {g:"ว", cls:"low",  ph:"w",  rt:"w",  ip:"w"},
+  {g:"ศ", cls:"high", ph:"s",  rt:"s",  ip:"s"},
+  {g:"ษ", cls:"high", ph:"s",  rt:"s",  ip:"s"},
+  {g:"ส", cls:"high", ph:"s",  rt:"s",  ip:"s"},
+  {g:"ห", cls:"high", ph:"h",  rt:"h",  ip:"h"},
+  {g:"ฬ", cls:"low",  ph:"l",  rt:"l",  ip:"l"},
+  {g:"อ", cls:"mid",  ph:"",   rt:"",   ip:"ʔ"},
+  {g:"ฮ", cls:"low",  ph:"h",  rt:"h",  ip:"h"}
+];
+
+/* --- vowel table ---
+   pattern: how to write it around the consonant.  C = consonant slot.
+   length: 'short' | 'long'
+   nucleus: ph / rt / ip vowel sound (without tone)
+   group: for level grouping
+*/
+const VOW = [
+  // simple short/long
+  {id:"a",   pat:"Cะ",  len:"short", ph:"a",  rt:"a",  ip:"a",  grp:"simple"},
+  {id:"aa",  pat:"Cา",  len:"long",  ph:"aa", rt:"a",  ip:"aː", grp:"simple"},
+  {id:"i",   pat:"Cิ",  len:"short", ph:"i",  rt:"i",  ip:"i",  grp:"simple"},
+  {id:"ii",  pat:"Cี",  len:"long",  ph:"ii", rt:"i",  ip:"iː", grp:"simple"},
+  {id:"ue",  pat:"Cึ",  len:"short", ph:"ʉ",  rt:"ue", ip:"ɯ",  grp:"simple"},
+  {id:"uue", pat:"Cือ", len:"long",  ph:"ʉʉ", rt:"ue", ip:"ɯː", grp:"simple"},
+  {id:"u",   pat:"Cุ",  len:"short", ph:"u",  rt:"u",  ip:"u",  grp:"simple"},
+  {id:"uu",  pat:"Cู",  len:"long",  ph:"uu", rt:"u",  ip:"uː", grp:"simple"},
+  {id:"e",   pat:"เCะ", len:"short", ph:"e",  rt:"e",  ip:"e",  grp:"simple"},
+  {id:"ee",  pat:"เC",  len:"long",  ph:"ee", rt:"e",  ip:"eː", grp:"simple"},
+  {id:"ae",  pat:"แCะ", len:"short", ph:"ɛ",  rt:"ae", ip:"ɛ",  grp:"simple"},
+  {id:"aae", pat:"แC",  len:"long",  ph:"ɛɛ", rt:"ae", ip:"ɛː", grp:"simple"},
+  {id:"o",   pat:"โCะ", len:"short", ph:"o",  rt:"o",  ip:"o",  grp:"simple"},
+  {id:"oo",  pat:"โC",  len:"long",  ph:"oo", rt:"o",  ip:"oː", grp:"simple"},
+  {id:"aw",  pat:"เCาะ",len:"short", ph:"ɔ",  rt:"o",  ip:"ɔ",  grp:"simple"},
+  {id:"aaw", pat:"Cอ",  len:"long",  ph:"ɔɔ", rt:"o",  ip:"ɔː", grp:"simple"},
+  {id:"oe",  pat:"เCอะ",len:"short", ph:"ə",  rt:"oe", ip:"ɤ",  grp:"simple"},
+  {id:"ooe", pat:"เCอ", len:"long",  ph:"əə", rt:"oe", ip:"ɤː", grp:"simple"},
+  // diphthongs
+  {id:"ia",  pat:"เCียะ",len:"short",ph:"ia", rt:"ia", ip:"ia", grp:"diphthong"},
+  {id:"iia", pat:"เCีย", len:"long", ph:"iia",rt:"ia", ip:"iːa",grp:"diphthong"},
+  {id:"uea", pat:"เCือะ",len:"short",ph:"ʉa", rt:"uea",ip:"ɯa", grp:"diphthong"},
+  {id:"uuea",pat:"เCือ", len:"long", ph:"ʉʉa",rt:"uea",ip:"ɯːa",grp:"diphthong"},
+  {id:"ua",  pat:"Cัวะ", len:"short",ph:"ua", rt:"ua", ip:"ua", grp:"diphthong"},
+  {id:"uua", pat:"Cัว",  len:"long", ph:"uua",rt:"ua", ip:"uːa",grp:"diphthong"}
+];
+
+/* tone marks glyph */
+const MARK = { none:"", ek:"่", tho:"้", tri:"๊", chat:"๋" };
+
+/* ---- compose written syllable ----
+   pat uses 'C' as the consonant slot. For อ as carrier we just place it.
+   tone mark goes immediately AFTER the consonant (above it).
+*/
+function compose(consG, vow, mark){
+  // First place the bare consonant into the slot.
+  let s = vow.pat.replace("C", consG);
+  const tmark = MARK[mark]||"";
+  if(!tmark) return s;
+  // The tone mark must follow the consonant AND any combining vowel char
+  // that sits directly on the consonant (above/below vowels: ิ ี ึ ื ุ ู ั ็).
+  // Find the consonant position, then skip following combining marks in
+  // the range U+0E31, U+0E34-U+0E3A (upper/lower vowels & marks).
+  const ci = s.indexOf(consG);
+  let insertAt = ci + consG.length;
+  const isCombiningUpperLower = ch=>{
+    const cp = ch.codePointAt(0);
+    return cp===0x0E31 || (cp>=0x0E34 && cp<=0x0E3A);
+  };
+  while(insertAt < s.length && isCombiningUpperLower(s[insertAt])) insertAt++;
+  return s.slice(0,insertAt) + tmark + s.slice(insertAt);
+}
+
+/* ---- tone computation for OPEN syllables (no final stop) ----
+   Open syllable = ends in a vowel. Long-vowel open = LIVE.
+   Short-vowel open syllables are treated here as live for tone purposes
+   in modern spoken Thai EXCEPT they are phonetically checked; for our
+   teaching cards we use the standard pedagogical rule:
+     - live syllable (long vowel, no final): base tone by class
+     - short open vowel: behaves like dead syllable (ends in glottal stop)
+   Returns tone name.
+*/
+function computeTone(cls, len, mark){
+  // with explicit tone marks
+  if(mark==="ek"){   // mái èek
+    if(cls==="low") return "falling";
+    return "low";              // mid & high -> low
+  }
+  if(mark==="tho"){  // mái thoo
+    if(cls==="low") return "high";
+    return "falling";          // mid & high -> falling
+  }
+  if(mark==="tri")  return "high";   // mái trii (mainly mid class)
+  if(mark==="chat") return "rising"; // mái jàttàwaa (mainly mid class)
+
+  // no mark
+  const dead = (len==="short"); // short open vowel ~ dead syllable
+  if(!dead){ // LIVE
+    if(cls==="low")  return "mid";
+    if(cls==="mid")  return "mid";
+    if(cls==="high") return "rising";
+  } else { // DEAD (short vowel)
+    if(cls==="mid")  return "low";
+    if(cls==="high") return "low";
+    if(cls==="low")  return len==="short" ? "high" : "falling";
+  }
+}
+
+/* tone diacritic for phonetic + which IPA tone letters */
+const TONE = {
+  mid:    {mark:"",  ipa:"˧",   rt:""},
+  low:    {mark:"\u0300", ipa:"˨˩", rt:""},  // grave
+  falling:{mark:"\u0302", ipa:"˥˩", rt:""},  // circumflex
+  high:   {mark:"\u0301", ipa:"˦˥", rt:""},  // acute
+  rising: {mark:"\u030C", ipa:"˩˩˦", rt:""}  // caron
+};
+
+/* apply tone diacritic to the first vowel letter of a phonetic string */
+function applyToneMark(phon, tone){
+  const d = TONE[tone].mark;
+  if(!d) return phon;
+  // place diacritic on first vowel char
+  const m = phon.match(/[aeiouɛɔəʉ]/);
+  if(!m) return phon;
+  const i = m.index;
+  return phon.slice(0,i+1) + d + phon.slice(i+1);
+}
+
+/* build a full card from a consonant + vowel + mark */
+function buildSyllable(cons, vow, mark){
+  const g = compose(cons.g, vow, mark);
+  const tone = computeTone(cons.cls, vow.len, mark);
+  const phRaw = cons.ph + vow.ph;
+  const ph = applyToneMark(phRaw, tone);
+  const rt = (cons.rt + vow.rt) || vow.rt;
+  const ipRaw = cons.ip + vow.ip;
+  const ip = ipRaw + TONE[tone].ipa;
+  return { g, ph, rt, ip, tone, cls:cons.cls, vgrp:vow.grp, len:vow.len, consG:cons.g, vowId:vow.id };
+}
+
+/* tone inflection for LIVE (open, long-vowel) syllables: which marks are
+   writable per class and the resulting tone. */
+function inflectLive(cls){
+  if(cls==="mid")  return [{mark:"none",tone:"mid"},{mark:"ek",tone:"low"},{mark:"tho",tone:"falling"},{mark:"tri",tone:"high"},{mark:"chat",tone:"rising"}];
+  if(cls==="high") return [{mark:"none",tone:"rising"},{mark:"ek",tone:"low"},{mark:"tho",tone:"falling"}];
+  if(cls==="low")  return [{mark:"none",tone:"mid"},{mark:"ek",tone:"falling"},{mark:"tho",tone:"high"}];
+  return [];
+}
+
+
+
+/* ============ KNOWN WORDS (for meanings on generated syllables) ============ */
+const KNOWN = {};
+DATA.syllables.forEach(s=>{ if(s.m && !s.m.startsWith("(syllable)")) KNOWN[s.g]=s.m; });
+DATA.words.forEach(w=>{ KNOWN[w.g]=w.m; });
+
+/* ============ LEVEL DEFINITIONS ============ */
+const LEVELS = [
+  {id:0, type:"cards", title:"Consonants", th:"พยัญชนะ", desc:"All 44 Thai consonants with names & sounds.", cards:DATA.consonants},
+  {id:1, type:"lesson", title:"Consonant Classes", th:"ไตรยางศ์", desc:"High, mid & low class — the key to tones.", lesson:"classes"},
+  {id:2, type:"grouped", title:"Vowels", th:"สระ", desc:"All 32 vowels, grouped by type.", groups:DATA.vowelGroups},
+  {id:3, type:"syllables", title:"Syllables", th:"พยัญชนะ + สระ", desc:"Every consonant × every vowel. Toggle class & vowel group."},
+  {id:4, type:"lesson", title:"Tones", th:"วรรณยุกต์", desc:"The 5 tones & how class changes them.", lesson:"tones"},
+  {id:5, type:"words", title:"Simple Words", th:"คำง่าย ๆ", desc:"351 everyday words. Filter by topic.", cards:DATA.words}
+];
+
+/* ============ STORAGE ============ */
+const SKEY="thai_flashcards_progress_v3";
+let progress = (()=>{try{return JSON.parse(localStorage.getItem(SKEY))||{};}catch(e){return {};}})();
+function saveProgress(){try{localStorage.setItem(SKEY,JSON.stringify(progress));}catch(e){}}
+
+/* ============ STATE ============ */
+let curLevel=null, curIndex=0, studyDeck=[], shuffleMode=false;
+let curGroupIndex=0;
+let sylClass="all", sylGroup="all";
+let wordCat="all";
+let infClass="all", infTone="all";
+let quizPool=[];
+
+/* a tones lesson in practice mode behaves as the inflection deck */
+function isInflect(){ return curLevel && (curLevel.type==="inflect" || (curLevel.lesson==="tones" && curLevel._practicing)); }
+
+/* ============ TONE-INFLECTION GENERATION (Level 5 practice) ============ */
+function genInflections(){
+  const longV = VOW.filter(v=>v.len==="long");
+  let out=[];
+  CONS.forEach(c=>{
+    if(infClass!=="all" && c.cls!==infClass) return;
+    const forms=inflectLive(c.cls);
+    longV.forEach(v=>{
+      forms.forEach(f=>{
+        if(infTone!=="all" && f.tone!==infTone) return;
+        const card=buildSyllable(c,v,f.mark);
+        const base=buildSyllable(c,v,"none");
+        const markName={none:"no mark",ek:"+ ◌่ èek",tho:"+ ◌้ thoo",tri:"+ ◌๊ trii",chat:"+ ◌๋ jàttàwaa"}[f.mark];
+        card.m = base.g+" → "+card.tone+" tone ("+markName+")";
+        out.push(card);
+      });
+    });
+  });
+  return out;
+}
+
+/* ============ HELPERS ============ */
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function cleanGlyph(g){return g.replace(/[–◌]/g,'ก').replace(/-/g,'');}
+function speakable(card){let g=card.g;if(g.includes('–')||g.includes('◌'))return cleanGlyph(g);return g;}
+
+/* ============ SYLLABLE GENERATION ============ */
+function genSyllables(){
+  let out=[];
+  CONS.forEach(c=>VOW.forEach(v=>{
+    if(sylClass!=="all" && c.cls!==sylClass) return;
+    if(sylGroup!=="all" && v.grp!==sylGroup) return;
+    const card=buildSyllable(c,v,"none");
+    if(KNOWN[card.g]) card.m=KNOWN[card.g];
+    else card.m="(syllable · "+card.tone+" tone)";
+    out.push(card);
+  }));
+  return out;
+}
+
+/* ============ SPEECH ============ */
+function speak(text){
+  if(!('speechSynthesis' in window))return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text);u.lang='th-TH';
+  const v=speechSynthesis.getVoices().find(x=>x.lang&&x.lang.toLowerCase().startsWith('th'));
+  if(v)u.voice=v;u.rate=.85;speechSynthesis.speak(u);
+}
+if('speechSynthesis' in window)speechSynthesis.onvoiceschanged=()=>{};
+
+/* ============ HOME ============ */
+function renderHome(){
+  const grid=document.getElementById('levelGrid');grid.innerHTML='';
+  LEVELS.forEach(lv=>{
+    const best=(progress[lv.id]&&progress[lv.id].best)||0;
+    let count;
+    if(lv.type==="grouped") count=lv.groups.reduce((n,g)=>n+g.cards.length,0)+" cards";
+    else if(lv.type==="syllables") count="1,008 combos";
+    else if(lv.type==="words") count=lv.cards.length+" words";
+    else if(lv.type==="lesson") count="lesson + quiz";
+    else count=lv.cards.length+" cards";
+    const div=document.createElement('div');
+    div.className='level-card';div.onclick=()=>openLevel(lv.id);
+    div.innerHTML=`
+      <div class="num">LEVEL ${lv.id+1}</div>
+      <h3>${lv.title}</h3>
+      <div class="th-sub">${lv.th}</div>
+      <div class="desc">${lv.desc}</div>
+      <div class="bar"><i style="width:${best}%"></i></div>
+      <div class="pct">${best>0?'Best quiz: '+best+'%':'Not started'} · ${count}</div>`;
+    grid.appendChild(div);
+  });
+}
+function showStage(id){document.querySelectorAll('.stage').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');window.scrollTo({top:0,behavior:'smooth'});}
+function goHome(){renderHome();showStage('home');}
+
+/* ============ OPEN LEVEL ============ */
+function openLevel(id){
+  curLevel=LEVELS[id];
+  if(curLevel._practicing) curLevel._practicing=false;
+  if(curLevel.type==="lesson"){openLesson();return;}
+  curGroupIndex=0;
+  openStudy();
+}
+
+/* ============ STUDY ============ */
+function activeCards(){
+  if(isInflect()) return genInflections();
+  if(curLevel.type==="grouped") return curLevel.groups[curGroupIndex].cards;
+  if(curLevel.type==="syllables") return genSyllables();
+  if(curLevel.type==="words") return wordCat==="all"?curLevel.cards:curLevel.cards.filter(w=>w.cat===wordCat);
+  return curLevel.cards;
+}
+function openStudy(){
+  curIndex=0;buildDeck();
+  let titleTh=curLevel.th;
+  if(curLevel.type==="grouped") titleTh=curLevel.groups[curGroupIndex].th;
+  if(isInflect()) titleTh="ผันวรรณยุกต์";
+  document.getElementById('studyTitle').innerHTML=`${curLevel.title}<small>${titleTh}</small>`;
+  renderChips();
+  showStage('study');renderCard();
+}
+function renderChips(){
+  const wrap=document.getElementById('studyChips');wrap.innerHTML='';
+  const note=document.getElementById('sylNote');
+  if(note) note.style.display = (curLevel.type==="syllables"||isInflect()) ? "block":"none";
+  if(note){
+    note.textContent = isInflect()
+      ? "⚙️ Live (long-vowel) syllables shown in every tone form that Thai spelling allows. Tones are auto-derived from class + mark. Most are sound combinations, not real words."
+      : "⚙️ These syllables are generated automatically by Thai spelling & tone rules. Most are sound combinations rather than real words; meanings are shown only where a real word exists. Auto-derived tones follow standard rules but rare exceptions may occur.";
+  }
+  wrap.style.flexDirection='row';wrap.style.alignItems='center';
+  if(curLevel.type==="grouped"){
+    wrap.style.display='flex';
+    curLevel.groups.forEach((g,i)=>{
+      const c=document.createElement('div');
+      c.className='chip'+(i===curGroupIndex?' active':'');
+      c.textContent=g.title+' · '+g.th;
+      c.onclick=()=>{curGroupIndex=i;curIndex=0;buildDeck();renderChips();
+        document.getElementById('studyTitle').innerHTML=`${curLevel.title}<small>${g.th}</small>`;renderCard();};
+      wrap.appendChild(c);
+    });
+    return;
+  }
+  if(curLevel.type==="syllables"){
+    wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.alignItems='flex-start';
+    wrap.innerHTML=`
+      <div style="font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#6b5a48;margin-bottom:4px;">Consonant class</div>
+      <div class="chiprow" id="classRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <div style="font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#6b5a48;margin:8px 0 4px;">Vowel group</div>
+      <div class="chiprow" id="groupRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>`;
+    const classRow=wrap.querySelector('#classRow');
+    [["all","All"],["mid","Mid"],["high","High"],["low","Low"]].forEach(([v,lbl])=>{
+      const c=document.createElement('div');c.className='chip'+(sylClass===v?' active':'');c.textContent=lbl;
+      c.onclick=()=>{sylClass=v;curIndex=0;buildDeck();renderChips();renderCard();};classRow.appendChild(c);
+    });
+    const groupRow=wrap.querySelector('#groupRow');
+    [["all","All"],["simple","Simple"],["diphthong","Diphthongs"]].forEach(([v,lbl])=>{
+      const c=document.createElement('div');c.className='chip'+(sylGroup===v?' active':'');c.textContent=lbl;
+      c.onclick=()=>{sylGroup=v;curIndex=0;buildDeck();renderChips();renderCard();};groupRow.appendChild(c);
+    });
+    return;
+  }
+  if(isInflect()){
+    wrap.style.display='flex';wrap.style.flexDirection='column';wrap.style.alignItems='flex-start';
+    wrap.innerHTML=`
+      <div style="font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#6b5a48;margin-bottom:4px;">Consonant class</div>
+      <div class="chiprow" id="icRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
+      <div style="font-family:'Space Mono',monospace;font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:#6b5a48;margin:8px 0 4px;">Resulting tone</div>
+      <div class="chiprow" id="itRow" style="display:flex;gap:8px;flex-wrap:wrap;"></div>`;
+    const icRow=wrap.querySelector('#icRow');
+    [["all","All"],["mid","Mid"],["high","High"],["low","Low"]].forEach(([v,lbl])=>{
+      const c=document.createElement('div');c.className='chip'+(infClass===v?' active':'');c.textContent=lbl;
+      c.onclick=()=>{infClass=v;curIndex=0;buildDeck();renderChips();renderCard();};icRow.appendChild(c);
+    });
+    const itRow=wrap.querySelector('#itRow');
+    [["all","All"],["mid","Mid"],["low","Low"],["falling","Falling"],["high","High"],["rising","Rising"]].forEach(([v,lbl])=>{
+      const c=document.createElement('div');c.className='chip'+(infTone===v?' active':'');c.textContent=lbl;
+      c.onclick=()=>{infTone=v;curIndex=0;buildDeck();renderChips();renderCard();};itRow.appendChild(c);
+    });
+    return;
+  }
+  if(curLevel.type==="words"){
+    wrap.style.display='flex';wrap.style.flexWrap='wrap';wrap.style.gap='8px';
+    const cats=["all",...Array.from(new Set(curLevel.cards.map(w=>w.cat)))];
+    const labels={all:"All",greetings:"Greetings",pronouns:"Pronouns",questions:"Questions",numbers:"Numbers",time:"Time",family:"Family",people:"People",body:"Body",food:"Food",verbs:"Verbs",adjectives:"Adjectives",colors:"Colors",animals:"Animals",places:"Places",nature:"Nature",objects:"Objects",phrases:"Phrases",directions:"Directions",grammar:"Grammar",feelings:"Feelings",days:"Days",transport:"Transport",misc:"Misc"};
+    cats.forEach(ct=>{
+      const c=document.createElement('div');c.className='chip'+(wordCat===ct?' active':'');c.textContent=labels[ct]||ct;
+      c.onclick=()=>{wordCat=ct;curIndex=0;buildDeck();renderChips();renderCard();};wrap.appendChild(c);
+    });
+    return;
+  }
+  wrap.style.display='none';
+}
+function buildDeck(){studyDeck=shuffleMode?shuffle(activeCards()):[...activeCards()];}
+function toggleShuffle(){shuffleMode=!shuffleMode;const b=document.getElementById('shuffleToggle');b.textContent=shuffleMode?'🔀 Shuffle: On':'🔀 Shuffle: Off';b.classList.toggle('primary',shuffleMode);curIndex=0;buildDeck();renderCard();}
+function renderCard(){
+  if(studyDeck.length===0){document.getElementById('cardGlyph').textContent='—';document.getElementById('cardPron').innerHTML='';document.getElementById('cardMeaning').textContent='No cards for this filter';document.getElementById('studyCounter').textContent='0 / 0';document.getElementById('studyProgress').style.width='0%';return;}
+  const c=studyDeck[curIndex];
+  const card=document.getElementById('flashcard');card.classList.remove('flipped');
+  document.getElementById('cardGlyph').textContent=c.g;
+  document.getElementById('cardGlyphBack').textContent=c.g;
+  let rows=`<div><b>say</b>${c.ph||''}</div>`;
+  if(c.rt) rows+=`<div><b>RTGS</b>${c.rt}</div>`;
+  if(c.ip) rows+=`<div><b>IPA</b>/${c.ip}/</div>`;
+  if(c.tone) rows+=`<div><b>tone</b>${c.tone}</div>`;
+  document.getElementById('cardPron').innerHTML=rows;
+  document.getElementById('cardMeaning').textContent=c.m||'';
+  const ct=document.getElementById('cardClass');const corner=document.getElementById('cornerClass');
+  const cls=c.cls||c.c;
+  if(cls && ['mid','high','low'].includes(cls)){
+    ct.style.display='inline-block';ct.className='class-tag '+cls;ct.textContent=cls+' class';
+    corner.style.display='block';corner.className='corner-class '+cls;corner.textContent=cls;
+  } else {ct.style.display='none';corner.style.display='none';}
+  document.getElementById('obsoleteFlag').style.display=c.obsolete?'block':'none';
+  document.getElementById('studyCounter').textContent=`${curIndex+1} / ${studyDeck.length}`;
+  document.getElementById('studyProgress').style.width=((curIndex+1)/studyDeck.length*100)+'%';
+}
+function flipCard(){document.getElementById('flashcard').classList.toggle('flipped');}
+function nextCard(e){if(e)e.stopPropagation();if(!studyDeck.length)return;curIndex=(curIndex+1)%studyDeck.length;renderCard();}
+function prevCard(e){if(e)e.stopPropagation();if(!studyDeck.length)return;curIndex=(curIndex-1+studyDeck.length)%studyDeck.length;renderCard();}
+function speakCurrent(e){if(e)e.stopPropagation();if(studyDeck.length)speak(speakable(studyDeck[curIndex]));}
+
+/* ============ LESSONS ============ */
+function openLesson(){
+  document.getElementById('lessonTitle').innerHTML=`${curLevel.title}<small>${curLevel.th}</small>`;
+  document.getElementById('lessonBody').innerHTML=curLevel.lesson==="classes"?lessonClasses():lessonTones();
+  document.getElementById('lessonStudyBtn').style.display='inline-block';
+  showStage('lesson');
+}
+function lessonToStudy(){
+  if(curLevel.lesson==="tones"){
+    curLevel._practicing=true;
+    openStudy();
+    return;
+  }
+  const savedType=curLevel.type, savedCards=curLevel.cards;
+  curLevel.cards=DATA.consonants;
+  curLevel.type="cards";openStudy();curLevel.type=savedType;curLevel.cards=savedCards;
+}
+function lessonToQuiz(){startQuiz();}
+
+function lessonClasses(){
+  const mk=(arr,cls)=>arr.map(g=>`<span class="gl ${cls}">${g}</span>`).join('');
+  return `
+  <h2>Consonant Classes · ไตรยางศ์</h2>
+  <p>Every Thai consonant belongs to one of three <b>classes</b>: <span class="pill mid">mid</span> <span class="pill high">high</span> <span class="pill low">low</span>. The class doesn't change the consonant's sound — but together with vowel length and any tone mark, it decides the <b>tone</b> of the syllable. This is why learning class is essential before tones.</p>
+  <h3>Mid class · อักษรกลาง (9)</h3>
+  <p>The "neutral" group. They can take all four tone marks and produce all five tones cleanly.</p>
+  <div class="glyphs">${mk(DATA.classes.mid,'mid')}</div>
+  <p class="callout">Memory tip: a classic mnemonic is <b>ไก่ จิก เด็ก ตาย บน ปาก โอ่ง</b> — it strings together mid-class letters.</p>
+  <h3>High class · อักษรสูง (11)</h3>
+  <p>High-class consonants give a <b>rising</b> tone on a plain live syllable, and pair with low-class twins for the same sound.</p>
+  <div class="glyphs">${mk(DATA.classes.high,'high')}</div>
+  <h3>Low class · อักษรต่ำ (24)</h3>
+  <p>The largest group. A plain live syllable here is <b>mid</b> tone, and tone marks behave differently than for high/mid letters.</p>
+  <div class="glyphs">${mk(DATA.classes.low,'low')}</div>
+  <div class="callout">Many high & low consonants share the same sound (e.g. ข/ค both "kh"). Knowing which class a letter is tells you which tone a word will have — that's the whole point of ไตรยางศ์.</div>
+  <p style="margin-top:10px;">Tap <b>Practice with cards</b> to drill each consonant with its class shown, or jump to the quiz.</p>`;
+}
+function lessonTones(){
+  return `
+  <h2>The Five Tones · วรรณยุกต์</h2>
+  <p>Thai has five tones: <b>mid</b>, <b>low</b>, <b>falling</b>, <b>high</b>, <b>rising</b>. The same syllable with a different tone is a different word. Compare (carrier ค/ข):</p>
+  <table class="tone">
+    <tr><th>Word</th><th>Tone</th><th>Say</th><th>Meaning</th></tr>
+    ${DATA.toneExamples.map(t=>`<tr><td>${t.g}</td><td><span class="pill ${t.tone==='falling'||t.tone==='high'?'high':t.tone==='rising'?'low':'mid'}">${t.tone}</span></td><td>${t.ph}</td><td>${t.m.split('—')[0]}</td></tr>`).join('')}
+  </table>
+  <h3>The four tone marks · รูปวรรณยุกต์</h3>
+  <div class="glyphs">${DATA.toneMarks.map(t=>`<span class="gl">${t.g.replace('–','ก')}</span>`).join('')}</div>
+  <p>${DATA.toneMarks.map(t=>`<b>${t.g.replace('–','◌')}</b> ${t.ph}`).join(' · ')}</p>
+  <h3>How class decides the tone</h3>
+  <p>The resulting tone depends on three things together: the <b>consonant class</b>, whether the syllable is <b>live</b> (long vowel / ends in m n ng y w) or <b>dead</b> (ends in p t k or a short vowel), and which <b>tone mark</b> is present.</p>
+  <table class="tone">
+    <tr><th>Class</th><th>Live, no mark</th><th>Dead</th><th>+ ◌่ (èek)</th><th>+ ◌้ (thoo)</th></tr>
+    <tr><td><span class="pill mid">mid</span></td><td>mid</td><td>low</td><td>low</td><td>falling</td></tr>
+    <tr><td><span class="pill high">high</span></td><td>rising</td><td>low</td><td>low</td><td>falling</td></tr>
+    <tr><td><span class="pill low">low</span></td><td>mid</td><td>high/falling*</td><td>falling</td><td>high</td></tr>
+  </table>
+  <p style="font-size:.8rem;opacity:.8;">*Low-class dead syllables: short vowel → high tone, long vowel → falling tone. Marks ◌๊ (trii) and ◌๋ (jàttàwaa) appear mainly with mid-class letters to force high and rising tones.</p>
+  <div class="callout">Example: <b>ข</b> is high class. ขา (live, no mark) → <b>rising</b> "khǎa" (leg). Add ◌่ → ข่า <b>low</b> "khàa" (galangal). Add ◌้ → ข้า <b>falling</b> "khâa". Same letters, class + mark decide everything.</div>
+  <p style="margin-top:10px;">Tap <b>Practice with cards</b> to drill the tone examples & marks, or take the quiz.</p>`;
+}
+
+/* ============ QUIZ ============ */
+let quizItems=[],qPos=0,qScore=0;
+function quizSource(){
+  if(isInflect()) return genInflections();
+  if(curLevel.type==="grouped") return curLevel.groups.flatMap(g=>g.cards);
+  if(curLevel.type==="syllables") return genSyllables();
+  if(curLevel.type==="words") return wordCat==="all"?curLevel.cards:curLevel.cards.filter(w=>w.cat===wordCat);
+  if(curLevel.type==="lesson") return curLevel.lesson==="classes"?DATA.consonants:genInflections();
+  return curLevel.cards;
+}
+function startQuiz(){
+  quizPool=quizSource();
+  quizItems=shuffle(quizPool).slice(0,Math.min(10,quizPool.length));
+  qPos=0;qScore=0;document.getElementById('quizSub').textContent=curLevel.th;
+  showStage('quiz');renderQuestion();
+}
+function renderQuestion(){
+  const body=document.getElementById('quizBody');
+  document.getElementById('quizScore').textContent=`Score ${qScore} / ${quizItems.length}`;
+  if(qPos>=quizItems.length){finishQuiz();return;}
+  const correct=quizItems[qPos];
+  const pool=quizPool.filter(c=>c!==correct);
+  const wrong=shuffle(pool).slice(0,3);
+  const opts=shuffle([correct,...wrong]);
+  const askClass=curLevel.type==="lesson"&&curLevel.lesson==="classes";
+  const askTone=isInflect()||(curLevel.type==="lesson"&&curLevel.lesson==="tones");
+  let label=askClass?"What CLASS is this consonant?":askTone?"What TONE is this syllable?":"What is this?";
+  body.innerHTML=`
+    <div class="quiz-prompt-label">Q ${qPos+1} of ${quizItems.length} · ${label}</div>
+    <div class="quiz-glyph">${correct.g.replace('–','◌')}</div>
+    <button class="btn ghost" onclick="speak('${speakable(correct).replace(/'/g,'')}')">🔊 Listen</button>
+    <div class="options" id="opts"></div>
+    <div class="quiz-feedback" id="qfb"></div>`;
+  const wrap=document.getElementById('opts');
+  if(askClass){
+    shuffle(['mid','high','low']).forEach(cl=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=cl+' class';
+      b.onclick=()=>answerClass(b,cl===correct.c,wrap,correct);wrap.appendChild(b);
+    });
+  } else if(askTone){
+    shuffle(['mid','low','falling','high','rising']).forEach(tn=>{
+      const b=document.createElement('button');b.className='opt';b.textContent=tn;
+      b.onclick=()=>answerTone(b,tn===correct.tone,wrap,correct);wrap.appendChild(b);
+    });
+  } else {
+    const askPh=Math.random()>0.5;
+    opts.forEach(o=>{
+      const b=document.createElement('button');b.className='opt';
+      b.textContent=askPh?(o.ph||o.m):(o.m||o.ph);
+      b.onclick=()=>answer(b,o===correct,wrap,askPh,correct);wrap.appendChild(b);
+    });
+  }
+}
+function lockOpts(wrap){[...wrap.children].forEach(b=>b.onclick=null);}
+function flash(){document.getElementById('quizScore').textContent=`Score ${qScore} / ${quizItems.length}`;setTimeout(()=>{qPos++;renderQuestion();},1100);}
+function answer(btn,isCorrect,wrap,askPh,correct){
+  lockOpts(wrap);const fb=document.getElementById('qfb');
+  if(isCorrect){btn.classList.add('correct');qScore++;fb.textContent="✓ Correct!";fb.style.color='var(--accent2)';}
+  else{btn.classList.add('wrong');[...wrap.children].forEach(b=>{if(b.textContent===(askPh?(correct.ph||correct.m):(correct.m||correct.ph)))b.classList.add('correct');});
+    fb.textContent="✗ "+(correct.ph||'')+" — "+(correct.m||'');fb.style.color='var(--accent)';}
+  flash();
+}
+function answerClass(btn,isCorrect,wrap,correct){
+  lockOpts(wrap);const fb=document.getElementById('qfb');
+  if(isCorrect){btn.classList.add('correct');qScore++;fb.textContent="✓ Correct!";fb.style.color='var(--accent2)';}
+  else{btn.classList.add('wrong');[...wrap.children].forEach(b=>{if(b.textContent===correct.c+' class')b.classList.add('correct');});
+    fb.textContent="✗ "+correct.g+" is "+correct.c+" class";fb.style.color='var(--accent)';}
+  flash();
+}
+function answerTone(btn,isCorrect,wrap,correct){
+  lockOpts(wrap);const fb=document.getElementById('qfb');
+  if(isCorrect){btn.classList.add('correct');qScore++;fb.textContent="✓ Correct!";fb.style.color='var(--accent2)';}
+  else{btn.classList.add('wrong');[...wrap.children].forEach(b=>{if(b.textContent===correct.tone)b.classList.add('correct');});
+    fb.textContent="✗ "+correct.g+" is "+correct.tone+" tone";fb.style.color='var(--accent)';}
+  flash();
+}
+function finishQuiz(){
+  const pct=Math.round(qScore/quizItems.length*100);
+  if(!progress[curLevel.id])progress[curLevel.id]={};
+  progress[curLevel.id].best=Math.max(progress[curLevel.id].best||0,pct);saveProgress();
+  document.getElementById('resultPct').textContent=pct+'%';
+  document.getElementById('resultStars').textContent=pct>=90?'★★★':pct>=70?'★★☆':pct>=40?'★☆☆':'☆☆☆';
+  document.getElementById('resultMsg').textContent=pct>=90?'Excellent! เก่งมาก!':pct>=70?'Great job! ดีมาก!':pct>=40?'Keep practicing! สู้ ๆ!':'Review and try again. ลองใหม่นะ!';
+  showStage('result');
+}
+function retryQuiz(){startQuiz();}
+
+document.addEventListener('keydown',e=>{
+  if(!document.getElementById('study').classList.contains('active'))return;
+  if(e.key==='ArrowRight')nextCard();
+  if(e.key==='ArrowLeft')prevCard();
+  if(e.key===' '){e.preventDefault();flipCard();}
+});
+renderHome();
+
+</script>
+</body>
+</html>
