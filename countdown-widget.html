@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Countdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..700&family=Instrument+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-0:#06101f;--bg-1:#0a1b3a;--bg-2:#0b2330;
+    --ink:#eaf4ff;--muted:#8aa6c4;
+    --accent:#7ff0d6;--accent-2:#8cd0ff;
+    --aurora-1:#1fd0a8;--aurora-2:#5a7bff;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%;overflow:hidden}
+  body{font-family:"Instrument Sans",system-ui,sans-serif;background:var(--bg-0);color:var(--ink);-webkit-font-smoothing:antialiased}
+
+  .stage{position:fixed;inset:0;overflow:hidden;
+    background:radial-gradient(120% 90% at 18% 8%,rgba(31,208,168,.10),transparent 55%),
+    radial-gradient(120% 90% at 92% 96%,rgba(90,123,255,.16),transparent 55%),
+    linear-gradient(155deg,var(--bg-1) 0%,var(--bg-0) 48%,var(--bg-2) 100%)}
+  .stage::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.7;
+    background-image:radial-gradient(1px 1px at 20% 30%,rgba(255,255,255,.55),transparent),
+    radial-gradient(1px 1px at 70% 18%,rgba(255,255,255,.45),transparent),
+    radial-gradient(1px 1px at 42% 72%,rgba(255,255,255,.4),transparent),
+    radial-gradient(1.4px 1.4px at 85% 60%,rgba(255,255,255,.5),transparent)}
+  .aurora{position:absolute;border-radius:50%;filter:blur(60px);opacity:.4;pointer-events:none;mix-blend-mode:screen}
+  .a1{width:70vmax;height:70vmax;left:-22vmax;top:-30vmax;background:radial-gradient(circle,var(--aurora-1),transparent 62%);animation:d1 22s ease-in-out infinite alternate}
+  .a2{width:62vmax;height:62vmax;right:-26vmax;bottom:-28vmax;background:radial-gradient(circle,var(--aurora-2),transparent 62%);animation:d2 27s ease-in-out infinite alternate}
+  @keyframes d1{to{transform:translate(8vmax,6vmax) scale(1.12)}}
+  @keyframes d2{to{transform:translate(-7vmax,-5vmax) scale(.95)}}
+  .grain{position:absolute;inset:0;pointer-events:none;opacity:.04;mix-blend-mode:soft-light;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+  /* Shared view layer */
+  .view{position:fixed;inset:0;z-index:2;overflow-y:auto;-webkit-overflow-scrolling:touch;
+    padding:clamp(16px,4vmin,32px) clamp(12px,3.5vmin,22px);display:flex;flex-direction:column;align-items:center}
+  .view::-webkit-scrollbar{width:4px}
+  .view::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:2px}
+  .view-inner{width:100%;max-width:460px}
+  .view-title{font-size:clamp(10px,2.5vmin,13px);letter-spacing:.32em;text-transform:uppercase;
+    color:var(--accent);font-weight:600;text-align:center;margin-bottom:clamp(14px,3.5vmin,22px)}
+
+  /* Range bar */
+  .range-bar{display:flex;gap:5px;justify-content:center;margin-bottom:clamp(14px,3.5vmin,20px);flex-wrap:wrap}
+  .range-btn{padding:6px 13px;border-radius:20px;border:1px solid rgba(255,255,255,.1);
+    background:rgba(255,255,255,.04);color:var(--muted);font-size:clamp(10px,2.5vmin,13px);
+    cursor:pointer;transition:all .2s;font-family:inherit;font-weight:500}
+  .range-btn.active{background:var(--accent);color:var(--bg-0);border-color:var(--accent);font-weight:600}
+
+  /* Selection list */
+  .sel-item{display:flex;align-items:center;gap:clamp(10px,2.5vmin,14px);
+    padding:clamp(12px,3vmin,16px) clamp(12px,3vmin,16px);
+    margin-bottom:5px;border-radius:12px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.06);
+    cursor:pointer;transition:background .2s,border-color .2s;
+    opacity:0;animation:rise .5s calc(var(--i,0)*.04s) cubic-bezier(.2,.7,.2,1) forwards}
+  .sel-item:active{background:rgba(255,255,255,.10)}
+  .sel-check{width:22px;height:22px;border-radius:6px;border:2px solid rgba(255,255,255,.18);
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;font-size:13px;color:transparent}
+  .sel-item.checked .sel-check{border-color:var(--card-accent,var(--accent));
+    background:var(--card-accent,var(--accent));color:var(--bg-0);font-weight:700}
+  .si-emoji{font-size:clamp(18px,5vmin,26px);flex-shrink:0}
+  .si-info{flex:1;min-width:0}
+  .si-title{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:clamp(14px,3.6vmin,20px);
+    color:var(--ink);line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .si-date{font-size:clamp(8px,2vmin,11px);color:var(--muted);letter-spacing:.1em;text-transform:uppercase;margin-top:.25em}
+  .si-days{flex-shrink:0;text-align:right;font-family:"Fraunces",Georgia,serif;font-weight:340;
+    font-size:clamp(18px,5vmin,28px);color:var(--ink);min-width:2em}
+  .si-days small{font-family:"Instrument Sans",sans-serif;font-size:.38em;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--muted);display:block;font-weight:500}
+
+  /* Show button */
+  .show-btn{position:sticky;bottom:12px;display:block;width:100%;max-width:320px;margin:clamp(16px,4vmin,24px) auto 0;
+    padding:clamp(12px,3vmin,16px);border-radius:12px;border:none;
+    background:var(--accent);color:var(--bg-0);font-family:inherit;font-weight:600;
+    font-size:clamp(13px,3.2vmin,16px);cursor:pointer;letter-spacing:.06em;transition:opacity .2s}
+  .show-btn:disabled{opacity:.35;cursor:default}
+
+  /* Countdown cards */
+  .event-card{display:flex;align-items:center;gap:clamp(10px,2.8vmin,16px);
+    padding:clamp(14px,3.5vmin,20px);margin-bottom:clamp(8px,2vmin,12px);
+    border-radius:14px;background:rgba(255,255,255,.05);
+    border:1px solid rgba(255,255,255,.07);border-left:3.5px solid var(--card-accent,var(--accent));
+    box-shadow:-3px 0 14px -5px var(--card-accent,var(--accent));
+    opacity:0;animation:rise .65s calc(var(--i,0)*.07s) cubic-bezier(.2,.7,.2,1) forwards}
+  .ec-emoji{font-size:clamp(22px,6vmin,32px);flex-shrink:0}
+  .ec-info{flex:1;min-width:0}
+  .ec-title{font-family:"Fraunces",Georgia,serif;font-style:italic;font-size:clamp(15px,4vmin,22px);
+    color:var(--ink);line-height:1.15;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .ec-date{font-size:clamp(8.5px,2.2vmin,11.5px);color:var(--muted);letter-spacing:.12em;text-transform:uppercase;margin-top:.3em}
+  .ec-count{flex-shrink:0;text-align:right;min-width:3em}
+  .ec-days{font-family:"Fraunces",Georgia,serif;font-weight:340;font-size:clamp(26px,7vmin,42px);
+    color:#fff;line-height:1;text-shadow:0 0 18px var(--card-accent,rgba(127,240,214,.3))}
+  .ec-unit{font-size:clamp(7.5px,1.9vmin,10.5px);color:var(--muted);letter-spacing:.14em;text-transform:uppercase;font-weight:500}
+  .ec-time{font-size:clamp(9.5px,2.4vmin,12.5px);color:var(--muted);font-variant-numeric:tabular-nums;margin-top:.15em}
+  .ec-done .ec-days{font-size:clamp(18px,5vmin,28px)}
+  .ec-done .ec-time{display:none}
+
+  .edit-btn{position:fixed;bottom:clamp(16px,4vmin,28px);right:clamp(16px,4vmin,28px);z-index:10;
+    width:clamp(40px,9vmin,52px);height:clamp(40px,9vmin,52px);border-radius:50%;
+    border:1.5px solid rgba(255,255,255,.12);background:rgba(10,27,58,.65);backdrop-filter:blur(10px);
+    color:var(--accent);font-size:clamp(16px,4vmin,22px);cursor:pointer;
+    display:flex;align-items:center;justify-content:center;transition:border-color .2s}
+  .edit-btn:hover,.edit-btn:active{border-color:var(--accent)}
+
+  .msg{text-align:center;padding:clamp(40px,12vmin,80px) 0;font-size:clamp(12px,3vmin,16px);
+    color:var(--muted);letter-spacing:.18em;text-transform:uppercase;font-weight:500}
+
+  @keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+  @media(prefers-reduced-motion:reduce){.a1,.a2,.sel-item,.event-card{animation:none;opacity:1}}
+</style>
+</head>
+<body>
+<div class="stage"><div class="aurora a1"></div><div class="aurora a2"></div><div class="grain"></div></div>
+
+<!-- SELECTION VIEW -->
+<div class="view" id="selView">
+  <div class="view-inner">
+    <div class="view-title">Select Events</div>
+    <div class="range-bar" id="rangeBar"></div>
+    <div id="selList"></div>
+    <button class="show-btn" id="showBtn" disabled>Select events to show</button>
+  </div>
+</div>
+
+<!-- COUNTDOWN VIEW -->
+<div class="view" id="cdView" style="display:none">
+  <div class="view-inner" id="cdList"></div>
+  <button class="edit-btn" id="editBtn" title="Change selection">✎</button>
+</div>
+
+<script>
+var SOURCE = "https://script.google.com/macros/s/AKfycbywMqEkDXV0GIeUO2WUtYR4M8KITNm-BGmSol0x0fbbUgS56Ah7qQ8gVdwjE7Viw571Cg/exec";
+
+var pad = function(n){ return String(n).padStart(2,"0"); };
+var $ = function(id){ return document.getElementById(id); };
+
+var RANGES = [
+  {label:"6 months", days:180},
+  {label:"1 year",   days:365},
+  {label:"2 years",  days:730},
+  {label:"5 years",  days:1825}
+];
+
+var selectedIds = new Set();
+var allEvents = [];
+var currentRange = 365;
+var cdCards = [];
+var tickTimer = null;
+var fetchId = 0;
+
+/* ── URL state (uses #hash so widget apps don't strip it) ── */
+function readUrl(){
+  var p = new URLSearchParams(location.hash.slice(1));
+  var ids = p.get("ids");
+  var range = parseInt(p.get("range"));
+  if (ids) ids.split(",").forEach(function(id){ selectedIds.add(id); });
+  if (range) currentRange = range;
+}
+function writeUrl(){
+  var parts = [];
+  if (selectedIds.size) parts.push("ids=" + Array.from(selectedIds).join(","));
+  parts.push("range=" + currentRange);
+  history.replaceState(null, "", "#" + parts.join("&"));
+}
+
+/* ── JSONP loader ── */
+function loadEvents(days, cb){
+  fetchId++;
+  var myId = fetchId;
+  var cbName = "__cdf" + myId;
+  window[cbName] = function(data){
+    delete window[cbName];
+    if (myId !== fetchId) return;
+    var evts = (data && data.events || [])
+      .map(function(e){ return Object.assign({}, e, {_d: new Date(e.date)}); })
+      .filter(function(e){ return !isNaN(e._d) && e._d > new Date(); })
+      .sort(function(a,b){ return a._d - b._d; });
+    cb(evts);
+  };
+  var sep = SOURCE.includes("?") ? "&" : "?";
+  var s = document.createElement("script");
+  s.src = SOURCE + sep + "callback=" + cbName + "&days=" + days + "&t=" + Date.now();
+  s.onerror = function(){
+    if (myId === fetchId) $("selList").innerHTML = '<div class="msg">Couldn\'t reach feed</div>';
+  };
+  document.head.appendChild(s);
+}
+
+/* ── Range bar ── */
+function buildRangeBar(){
+  var bar = $("rangeBar");
+  bar.innerHTML = "";
+  RANGES.forEach(function(r){
+    var btn = document.createElement("button");
+    btn.className = "range-btn" + (r.days === currentRange ? " active" : "");
+    btn.textContent = r.label;
+    btn.onclick = function(){
+      currentRange = r.days;
+      bar.querySelectorAll(".range-btn").forEach(function(b){ b.classList.remove("active"); });
+      btn.classList.add("active");
+      $("selList").innerHTML = '<div class="msg">Loading\u2026</div>';
+      loadEvents(currentRange, function(evts){ allEvents = evts; renderSelection(); });
+    };
+    bar.appendChild(btn);
+  });
+}
+
+/* ── Selection view ── */
+function renderSelection(){
+  var list = $("selList");
+  list.innerHTML = "";
+  if (!allEvents.length){ list.innerHTML = '<div class="msg">No upcoming events</div>'; return; }
+  allEvents.forEach(function(ev, i){
+    var days = Math.max(0, Math.floor((ev._d - new Date()) / 86400000));
+    var row = document.createElement("div");
+    row.className = "sel-item" + (selectedIds.has(ev.id) ? " checked" : "");
+    row.style.setProperty("--card-accent", ev.accent || "#7ff0d6");
+    row.style.setProperty("--i", i);
+    row.innerHTML =
+      '<div class="sel-check">\u2713</div>'
+      +'<span class="si-emoji">'+(ev.emoji||'📅')+'</span>'
+      +'<div class="si-info"><div class="si-title">'+ev.title+'</div>'
+      +'<div class="si-date">'+ev._d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+'</div></div>'
+      +'<div class="si-days">'+days+'<small>days</small></div>';
+    row.onclick = function(){
+      if (selectedIds.has(ev.id)) selectedIds.delete(ev.id); else selectedIds.add(ev.id);
+      row.classList.toggle("checked");
+      updateShowBtn();
+    };
+    list.appendChild(row);
+  });
+  updateShowBtn();
+}
+
+function updateShowBtn(){
+  var btn = $("showBtn");
+  var n = selectedIds.size;
+  btn.disabled = n === 0;
+  btn.textContent = n === 0 ? "Select events to show" : "Show " + n + " countdown" + (n > 1 ? "s" : "");
+}
+
+/* ── Countdown view ── */
+function showCountdown(){
+  if (tickTimer){ clearInterval(tickTimer); tickTimer = null; }
+  var chosen = allEvents.filter(function(e){ return selectedIds.has(e.id); })
+    .sort(function(a,b){ return a._d - b._d; });
+  if (!chosen.length){ return; }
+  var list = $("cdList");
+  list.innerHTML = "";
+  cdCards = [];
+  chosen.forEach(function(ev, i){
+    var card = document.createElement("div");
+    card.className = "event-card";
+    card.style.setProperty("--card-accent", ev.accent || "#7ff0d6");
+    card.style.setProperty("--i", i);
+    card.innerHTML =
+      '<span class="ec-emoji">'+(ev.emoji||'📅')+'</span>'
+      +'<div class="ec-info"><div class="ec-title">'+ev.title+'</div>'
+      +'<div class="ec-date">'+ev._d.toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"})+'</div></div>'
+      +'<div class="ec-count"><div class="ec-days">\u2014</div>'
+      +'<div class="ec-unit">days</div><div class="ec-time">00:00:00</div></div>';
+    list.appendChild(card);
+    cdCards.push({ev:ev, els:{card:card,
+      days:card.querySelector(".ec-days"),unit:card.querySelector(".ec-unit"),time:card.querySelector(".ec-time")}});
+  });
+  tickAll();
+  tickTimer = setInterval(tickAll, 1000);
+  $("selView").style.display = "none";
+  $("cdView").style.display = "";
+  writeUrl();
+}
+
+function tickAll(){
+  var now = new Date();
+  cdCards.forEach(function(c){
+    var diff = c.ev._d - now;
+    if (diff <= 0){
+      c.els.card.classList.add("ec-done");
+      c.els.days.textContent = c.ev.emoji || "\u2713";
+      c.els.unit.textContent = c.ev.done || "Done";
+      return;
+    }
+    var s = Math.floor(diff/1000), d = Math.floor(s/86400);
+    c.els.days.textContent = d;
+    c.els.unit.textContent = d === 1 ? "day" : "days";
+    c.els.time.textContent = pad(Math.floor(s%86400/3600))+":"+pad(Math.floor(s%3600/60))+":"+pad(s%60);
+  });
+}
+
+/* ── Mode switching ── */
+function goSelect(){
+  if (tickTimer){ clearInterval(tickTimer); tickTimer = null; }
+  $("cdView").style.display = "none";
+  $("selView").style.display = "";
+  renderSelection();
+}
+
+/* ── Wiring ── */
+$("showBtn").onclick = showCountdown;
+$("editBtn").onclick = goSelect;
+
+/* ── Init ── */
+readUrl();
+buildRangeBar();
+$("selList").innerHTML = '<div class="msg">Loading\u2026</div>';
+loadEvents(currentRange, function(evts){
+  allEvents = evts;
+  if (selectedIds.size > 0){
+    showCountdown();
+  } else {
+    renderSelection();
+  }
+});
+</script>
+</body>
+</html>
