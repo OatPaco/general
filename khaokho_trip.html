@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>เขาค้อ · เพชรบูรณ์ — 6 คืน 7 วัน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&family=IBM+Plex+Sans+Thai:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  :root{
+    --pine:#16302a;--pine-2:#1f3a30;--moss:#3e6b5a;--moss-soft:#6f9a89;
+    --fog:#f1f4f1;--fog-2:#e3eae6;--mist:#c7d4cf;
+    --dawn:#df7a4d;--dawn-soft:#eaa173;--gold:#c8911f;
+    --ink:#15211d;--ink-soft:#42554e;--line:rgba(31,58,48,.14);
+    --shadow:0 18px 40px -24px rgba(13,32,26,.55);--r:18px;
+    --c-see:#2e8b57;--c-eat:#df7a4d;--c-cafe:#b8860b;--c-stay:#3a6ea5;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:"IBM Plex Sans Thai",system-ui,sans-serif;background:var(--fog);color:var(--ink);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:820px;margin:0 auto;padding:0 20px}
+
+  /* lang toggle */
+  .langbar{position:fixed;top:14px;right:14px;z-index:1200;display:flex;background:rgba(22,48,42,.9);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.18);border-radius:999px;padding:4px;box-shadow:var(--shadow)}
+  .langbtn{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:13px;letter-spacing:.04em;color:#cfded6;background:none;border:0;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.2s}
+  .langbtn.on{background:var(--dawn);color:#fff}
+
+  /* hero */
+  .hero{position:relative;min-height:430px;display:flex;align-items:flex-end;color:#fff;overflow:hidden;
+    background:linear-gradient(180deg,rgba(11,26,21,.15) 0%,rgba(11,26,21,.55) 70%,var(--fog) 100%),linear-gradient(165deg,#0e2620 0%,#274a3d 42%,#5d8475 70%,#aebfb6 100%)}
+  .glow{position:absolute;left:50%;top:-14%;transform:translateX(-50%);width:520px;height:520px;border-radius:50%;background:radial-gradient(circle,rgba(234,161,115,.85) 0%,rgba(223,122,77,.35) 38%,transparent 66%);filter:blur(6px);pointer-events:none}
+  .fog-band{position:absolute;left:-25%;width:150%;height:120px;pointer-events:none;background:radial-gradient(ellipse at center,rgba(241,244,241,.9) 0%,rgba(241,244,241,0) 70%);opacity:.7}
+  .fog-1{bottom:60px;animation:drift 26s ease-in-out infinite alternate}
+  .fog-2{bottom:18px;height:160px;opacity:.85;animation:drift 34s ease-in-out infinite alternate-reverse}
+  .fog-3{bottom:120px;height:90px;opacity:.5;animation:drift 30s 2s ease-in-out infinite alternate}
+  @keyframes drift{from{transform:translateX(-4%)}to{transform:translateX(4%)}}
+  .ridge{position:absolute;bottom:0;left:0;width:100%;display:block}
+  .hero-inner{position:relative;z-index:3;padding:0 20px 54px;width:100%;max-width:820px;margin:0 auto}
+  .eyebrow{font-family:"Bai Jamjuree",sans-serif;font-weight:600;letter-spacing:.34em;text-transform:uppercase;font-size:11px;color:var(--dawn-soft);margin-bottom:14px}
+  .hero h1{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:clamp(40px,11vw,68px);line-height:.96;letter-spacing:-.01em;text-shadow:0 2px 30px rgba(8,20,16,.45)}
+  .hero h1 small{display:block;font-size:.34em;font-weight:500;letter-spacing:.02em;color:#e8efe9;margin-top:10px;text-shadow:none}
+  .hero-meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:22px}
+  .chip{font-family:"Bai Jamjuree",sans-serif;font-weight:500;font-size:13px;background:rgba(255,255,255,.16);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.28);padding:6px 13px;border-radius:999px}
+
+  /* route strip */
+  .route{padding:34px 0 6px}
+  .route-label{font-family:"Bai Jamjuree",sans-serif;letter-spacing:.28em;text-transform:uppercase;font-size:11px;color:var(--moss);font-weight:600;margin-bottom:14px}
+  .route-flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px 4px;font-family:"Bai Jamjuree",sans-serif;font-weight:600}
+  .node{background:#fff;border:1px solid var(--line);border-radius:12px;padding:7px 13px;font-size:15px;box-shadow:var(--shadow)}
+  .node.alt{background:var(--pine);color:#fff;border-color:var(--pine)}
+  .arr{color:var(--moss-soft);font-size:14px}
+
+  /* map */
+  .mapsec{padding:26px 0 6px}
+  .mapsec h2{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:22px;color:var(--pine);margin-bottom:4px}
+  .mapsec .sub{color:var(--ink-soft);font-size:14px;margin-bottom:14px}
+  #map{height:460px;width:100%;border-radius:var(--r);border:1px solid var(--line);box-shadow:var(--shadow);z-index:0}
+  .legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:14px;font-size:13px}
+  .legend span{display:flex;align-items:center;gap:6px;color:var(--ink-soft);font-family:"Bai Jamjuree",sans-serif;font-weight:500}
+  .dot{width:12px;height:12px;border-radius:50%;display:inline-block;border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.15)}
+  .maproute{width:22px;height:0;border-top:3px solid var(--pine);display:inline-block;border-radius:2px}
+  .leaflet-popup-content{font-family:"IBM Plex Sans Thai",sans-serif;margin:11px 13px;line-height:1.5}
+  .leaflet-popup-content b{font-family:"Bai Jamjuree",sans-serif;font-size:14.5px}
+  .leaflet-popup-content a{color:var(--moss);font-weight:600;font-family:"Bai Jamjuree",sans-serif;font-size:12.5px;text-decoration:none}
+  .pp-cat{font-size:12px;color:var(--moss-soft)}
+
+  /* days */
+  .days{padding:30px 0 10px}
+  .day{position:relative;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:26px 22px 22px;margin-bottom:22px;box-shadow:var(--shadow);opacity:0;transform:translateY(18px);transition:opacity .7s ease,transform .7s ease}
+  .day.in{opacity:1;transform:none}
+  .day-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:18px}
+  .daynum{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:46px;line-height:.8;color:var(--pine);letter-spacing:-.03em}
+  .daynum span{display:block;font-size:11px;letter-spacing:.24em;color:var(--moss-soft);font-weight:600;margin-bottom:4px}
+  .day-title{flex:1}
+  .day-title h2{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:19px;color:var(--ink)}
+  .leg{font-size:13px;color:var(--moss);font-weight:500;margin-top:3px}
+  .leg b{color:var(--dawn);font-weight:600}
+  .stop{display:flex;gap:13px;padding:13px 0;border-bottom:1px dashed var(--line)}
+  .stop:last-child{border-bottom:0;padding-bottom:2px}
+  .ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:18px;border:1px solid var(--line)}
+  .ic.see{background:#eaf3ee;border-color:#cfe3d7}
+  .ic.eat{background:#fbeee6;border-color:#f3d8c6}
+  .ic.cafe{background:#f4ece2;border-color:#e7d4bd}
+  .ic.stay{background:#e9eff4;border-color:#cfdce6}
+  .stop-body{flex:1;min-width:0}
+  .when{font-family:"Bai Jamjuree",sans-serif;font-size:11px;font-weight:600;letter-spacing:.12em;color:var(--moss-soft);text-transform:uppercase}
+  .stop-body h3{font-size:16px;font-weight:600;margin:1px 0 2px;line-height:1.35}
+  .placelink{color:var(--pine);text-decoration:none;border-bottom:1.5px solid var(--dawn-soft);transition:.2s}
+  .placelink::after{content:" ↗";font-size:.8em;color:var(--dawn);border:0}
+  .placelink:hover{color:var(--dawn)}
+  .stop-body p{font-size:14px;color:var(--ink-soft)}
+  .stop-meta{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:7px}
+  .rate{font-family:"Bai Jamjuree",sans-serif;font-size:12px;font-weight:600;color:var(--gold);background:#fdf6e6;border:1px solid #f0e1b4;padding:2px 8px;border-radius:7px}
+  .alt-pick{font-size:13px;color:var(--moss);background:#f3f7f4;border-radius:9px;padding:8px 11px;margin-top:8px}
+  .alt-pick a{color:var(--moss);font-weight:600}
+  .warn{background:#fdf3ed;border:1px solid #f3d3bf;border-radius:10px;padding:10px 12px;margin-top:8px;font-size:13.5px;color:#9a4a23}
+
+  /* blocks */
+  .block{padding:14px 0}
+  .block>h2{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:26px;color:var(--pine);letter-spacing:-.01em;margin-bottom:4px}
+  .block>.sub{color:var(--ink-soft);font-size:14.5px;margin-bottom:18px}
+  .stay-group{margin-bottom:22px}
+  .stay-group h4{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:14px;letter-spacing:.04em;color:var(--moss);margin-bottom:10px;display:flex;align-items:center;gap:8px}
+  .stay-group h4::before{content:"";width:26px;height:2px;background:var(--dawn);border-radius:2px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:14px;padding:15px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:6px}
+  .card h5{font-family:"Bai Jamjuree",sans-serif;font-weight:600;font-size:15.5px}
+  .card h5 a{color:var(--pine);text-decoration:none;border-bottom:1.5px solid var(--dawn-soft)}
+  .card h5 a:hover{color:var(--dawn)}
+  .card h5 a::after{content:" ↗";font-size:.8em;color:var(--dawn);border:0}
+  .card p{font-size:13px;color:var(--ink-soft);flex:1}
+  .card .stop-meta{margin-top:auto}
+
+  .info{background:var(--pine);color:#e8efe9;border-radius:var(--r);padding:26px 22px;margin:8px 0 22px;box-shadow:var(--shadow)}
+  .info h2{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:21px;color:#fff;margin-bottom:6px}
+  .info p{font-size:14px;color:#bcd0c7}
+  .info .map-steps{counter-reset:s;margin-top:14px;display:grid;gap:10px}
+  .info .step{display:flex;gap:12px;align-items:flex-start;font-size:14.5px}
+  .info .step .n{flex:none;counter-increment:s;font-family:"Bai Jamjuree",sans-serif;font-weight:700;color:var(--pine);background:var(--dawn-soft);width:26px;height:26px;border-radius:8px;display:grid;place-items:center;font-size:13px}
+  .info .step .n::before{content:counter(s)}
+  .info code{background:rgba(255,255,255,.12);padding:1px 7px;border-radius:6px;font-size:13px}
+
+  .foglist{background:#fdf6e6;border:1px solid #f0e1b4;border-radius:var(--r);padding:22px;margin-bottom:22px}
+  .foglist h2{font-family:"Bai Jamjuree",sans-serif;font-weight:700;font-size:20px;color:#8a6a1b;margin-bottom:6px}
+  .foglist ul{list-style:none;margin-top:10px;display:grid;gap:7px}
+  .foglist li{font-size:14px;color:#5f4d18;padding-left:22px;position:relative}
+  .foglist li::before{content:"☁";position:absolute;left:0;color:var(--gold)}
+
+  footer{text-align:center;padding:34px 20px 50px;color:var(--moss-soft);font-size:13px;font-family:"Bai Jamjuree",sans-serif}
+  footer .hr{width:46px;height:2px;background:var(--dawn);border-radius:2px;margin:0 auto 16px}
+
+  @media (max-width:520px){
+    .day{padding:22px 16px 18px}.daynum{font-size:38px}.cards{grid-template-columns:1fr}#map{height:380px}
+    .langbar{top:10px;right:10px}
+  }
+  @media (prefers-reduced-motion:reduce){.fog-1,.fog-2,.fog-3{animation:none}.day{transition:none;opacity:1;transform:none}}
+</style>
+</head>
+<body>
+
+<div class="langbar" role="group" aria-label="Language">
+  <button class="langbtn on" data-lang="th" onclick="setLang('th')">ไทย</button>
+  <button class="langbtn" data-lang="en" onclick="setLang('en')">EN</button>
+</div>
+
+<header class="hero">
+  <div class="glow"></div>
+  <div class="fog-band fog-3"></div><div class="fog-band fog-1"></div><div class="fog-band fog-2"></div>
+  <svg class="ridge" viewBox="0 0 1440 120" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0,120 L0,72 C180,30 320,96 480,64 C640,32 760,8 920,40 C1080,72 1240,30 1440,58 L1440,120 Z" fill="#f1f4f1"/>
+  </svg>
+  <div class="hero-inner">
+    <div class="eyebrow" data-en="Road Trip · Mid-July 2026">Road Trip · กลางฝน 2569</div>
+    <h1>เขาค้อ<small data-en="Phetchabun · sea of fog, mountains &amp; hilltop cafés">เพชรบูรณ์ · ทะเลหมอก ขุนเขา และคาเฟ่บนเขา</small></h1>
+    <div class="hero-meta">
+      <span class="chip" data-en="6 nights / 7 days">6 คืน 7 วัน</span>
+      <span class="chip" data-en="Self-drive · 2 people">ขับรถ · 2 คน</span>
+      <span class="chip" data-en="Loop via Lop Buri + Nakhon Sawan">ลูป ลพบุรี + นครสวรรค์</span>
+      <span class="chip" data-en="Mid–high budget">งบกลาง–หรู</span>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <section class="route">
+    <div class="route-label" data-en="Full loop · ~720 km round trip">เส้นทางลูป · ~720 กม. ไป–กลับ</div>
+    <div class="route-flow">
+      <span class="node" data-en="Bangkok">กรุงเทพฯ</span><span class="arr">→</span>
+      <span class="node alt" data-en="Lop Buri">ลพบุรี</span><span class="arr">→</span>
+      <span class="node" data-en="Si Thep">ศรีเทพ</span><span class="arr">→</span>
+      <span class="node alt" data-en="Khao Kho ×4">เขาค้อ ×4</span><span class="arr">→</span>
+      <span class="node alt" data-en="Nakhon Sawan">นครสวรรค์</span><span class="arr">→</span>
+      <span class="node" data-en="Bangkok">กรุงเทพฯ</span>
+    </div>
+  </section>
+
+  <section class="mapsec">
+    <h2 data-en="Route map">แผนที่เส้นทาง</h2>
+    <p class="sub" data-en="Driving route + all stops. Tap any pin for details and to open it in Google Maps.">เส้นทางขับรถ + จุดแวะทั้งหมด แตะหมุดเพื่อดูรายละเอียดและเปิดใน Google Maps</p>
+    <div id="map"></div>
+    <div class="legend">
+      <span><i class="dot" style="background:var(--c-see)"></i><b data-en="Sights / photo">จุดเที่ยว / ถ่ายรูป</b></span>
+      <span><i class="dot" style="background:var(--c-eat)"></i><b data-en="Restaurants">ร้านอาหาร</b></span>
+      <span><i class="dot" style="background:var(--c-cafe)"></i><b data-en="Cafés">คาเฟ่</b></span>
+      <span><i class="dot" style="background:var(--c-stay)"></i><b data-en="Stays">ที่พัก</b></span>
+      <span><i class="maproute"></i><b data-en="Driving route">เส้นทางขับรถ</b></span>
+    </div>
+  </section>
+
+  <main class="days">
+
+    <!-- DAY 1 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>1</div>
+        <div class="day-title"><h2 data-en="Bangkok → Lop Buri">กรุงเทพฯ → ลพบุรี</h2>
+          <div class="leg" data-en="~155 km · drive <b>~2 hr</b> · old town + monkeys + cafés">~155 กม. · ขับ <b>~2 ชม.</b> · เมืองเก่า + ลิง + คาเฟ่</div></div></div>
+
+      <div class="stop"><div class="ic eat">🍜</div><div class="stop-body">
+        <div class="when" data-en="Lunch">เที่ยง</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.7999157,100.6696454" data-en="Natural Life (Pho Rak)">เพาะรัก (Natural Life)</a></h3>
+        <p data-en="Bold authentic Thai food in a leafy garden, live music some nights — boran tom yum, fried fish larb.">อาหารไทยรสจัด บรรยากาศสวนร่มรื่น มีดนตรีสดบางวัน — ต้มยำโบราณ ลาบปลาทอด</p>
+        <div class="stop-meta"><span class="rate">★ 4.4</span></div></div></div>
+
+      <div class="stop"><div class="ic see">📷</div><div class="stop-body">
+        <div class="when" data-en="Afternoon">บ่าย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.8029471,100.6140415" data-en="Phra Prang Sam Yot">พระปรางค์สามยอด</a></h3>
+        <p data-en="Lop Buri's iconic Khmer prang, very photogenic. Most monkeys relocated now, so it's calmer to walk (~80฿).">ปราสาทขอมสุดไอคอนิกของลพบุรี ถ่ายรูปสวย ช่วงนี้ลิงถูกย้ายไปเยอะ เดินชิลได้สบายขึ้น (~80฿)</p>
+        <div class="stop-meta"><span class="rate">★ 4.4</span></div></div></div>
+
+      <div class="stop"><div class="ic see">📷</div><div class="stop-body">
+        <div class="when" data-en="Afternoon">บ่าย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.7986781,100.614761" data-en="Wat Phra Si Rattana Mahathat">วัดพระศรีรัตนมหาธาตุ</a></h3>
+        <p data-en="Atmospheric ruins opposite the train station — a classic photo spot, best in morning/evening light, few monkeys.">โบราณสถานตรงข้ามสถานีรถไฟ มุมถ่ายรูปคลาสสิก แสงเช้า–เย็นสวยที่สุด ไม่ค่อยมีลิง</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div></div></div>
+
+      <div class="stop"><div class="ic cafe">☕</div><div class="stop-body">
+        <div class="when" data-en="Late afternoon">บ่ายแก่</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.8017588,100.6143046" data-en="SRiiNTRA Specialty Coffee">SRiiNTRA Specialty Coffee</a></h3>
+        <p data-en="4th-floor café with old-town views from above, varied coffee, good pandan dessert.">คาเฟ่ชั้น 4 วิวเมืองเก่าจากมุมสูง กาแฟหลากหลาย ขนมใบเตยอร่อย</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div>
+        <div class="alt-pick" data-en="Alt: <b>H CRAFT Slow Bar</b> — skilled specialty coffee, easy on the wallet (★ 4.9)">ทางเลือก: <b>H CRAFT Slow Bar</b> — กาแฟ specialty ฝีมือดี ราคาเบา (★ 4.9)</div></div></div>
+
+      <div class="stop"><div class="ic eat">🍽️</div><div class="stop-body">
+        <div class="when" data-en="Evening">เย็น</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.7948547,100.6366096" data-en="ATLAS House">ATLAS House</a></h3>
+        <p data-en="Restaurant–bar with a good vibe and live music — nice way to close day one.">ร้านอาหาร–บาร์ บรรยากาศดี ดนตรีสด เหมาะนั่งชิลปิดวันแรก</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div>
+        <div class="alt-pick" data-en="Japanese: <b>Kansai Izakaya</b> — salmon teriyaki, sake/Japanese whisky (★ 4.7)">สายญี่ปุ่น: <b>Kansai Izakaya</b> — ปลาแซลมอนเทอริยากิ สาเก/วิสกี้ญี่ปุ่น (★ 4.7)</div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body">
+        <div class="when" data-en="Night 1">พักคืนที่ 1</div>
+        <h3 data-en="Stay in Lop Buri">ที่พักลพบุรี</h3>
+        <p data-en="See accommodation options below (DadD Resort / Lopburi Inn / Palm Resort).">ดูตัวเลือกที่พักด้านล่าง (DadD Resort / Lopburi Inn / Palm Resort)</p></div></div>
+    </article>
+
+    <!-- DAY 2 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>2</div>
+        <div class="day-title"><h2 data-en="Lop Buri → Si Thep → Khao Kho">ลพบุรี → ศรีเทพ → เขาค้อ</h2>
+          <div class="leg" data-en="~230 km · drive <b>~3.5 hr</b> (with stops) · World Heritage + up the mountain">~230 กม. · ขับ <b>~3.5 ชม.</b> (รวมแวะ) · มรดกโลก + ขึ้นเขา</div></div></div>
+
+      <div class="stop"><div class="ic see">🏛️</div><div class="stop-body">
+        <div class="when" data-en="Morning">เช้า</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.4715661,101.1469033" data-en="Si Thep Historical Park">อุทยานประวัติศาสตร์ศรีเทพ</a></h3>
+        <p data-en="Dvaravati ancient city, a UNESCO World Heritage Site (2023). Right on the way — allow ~1.5–2 hr (open 8:30–16:30).">เมืองโบราณทวารวดี ขึ้นทะเบียน <b>มรดกโลก UNESCO ปี 2566</b> อยู่กึ่งทางพอดี เดินชม ~1.5–2 ชม. (เปิด 8:30–16:30)</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div></div></div>
+
+      <div class="stop"><div class="ic eat">🍜</div><div class="stop-body">
+        <div class="when" data-en="Lunch">เที่ยง</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.7695286,101.0443973" data-en="Krua Khao Kho">ครัวเขาค้อ</a></h3>
+        <p data-en="Lunch on arrival — tasty, well-priced Thai food (kang som, prawn cakes, pork trotters). Cooked to order, so be patient.">ถึงเขาค้อแวะกินกลางวัน อาหารไทยอร่อยเด็ด ราคาดี — แกงส้ม ทอดมันกุ้ง ขาหมู (ทำสด รอหน่อย)</p>
+        <div class="stop-meta"><span class="rate">★ 4.2</span></div></div></div>
+
+      <div class="stop"><div class="ic stay">🛎️</div><div class="stop-body">
+        <div class="when" data-en="Afternoon">บ่าย</div>
+        <h3 data-en="Check in at Khao Kho · relax">เช็คอินที่พักเขาค้อ · พักผ่อน</h3>
+        <p data-en="Settle in, charge up, adjust to the cool air, ready for tomorrow's sea-of-fog sunrise.">เก็บของ ชาร์จแบต ปรับตัวกับอากาศเย็น เตรียมตื่นเช้าดูทะเลหมอกพรุ่งนี้</p></div></div>
+
+      <div class="stop"><div class="ic see">🌇</div><div class="stop-body">
+        <div class="when" data-en="Evening">เย็น</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.6300034,100.9954175" data-en="Khao Kho Viewpoint">จุดชมวิวเขาค้อ</a></h3>
+        <p data-en="Catch the sunset and scout the fog-viewing spot for tomorrow morning. Coffee/food stalls along the road.">ชมพระอาทิตย์ตก สำรวจจุดดูทะเลหมอกไว้สำหรับเช้าวันรุ่งขึ้น มีร้านกาแฟ/อาหารริมทาง</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body"><div class="when" data-en="Night 2">พักคืนที่ 2</div><h3 data-en="Stay in Khao Kho">ที่พักเขาค้อ</h3><p data-en="See options below (The Sense / Blue Sky / Pino Latte / Mountain View).">ดูตัวเลือกด้านล่าง (The Sense / Blue Sky / Pino Latte / Mountain View)</p></div></div>
+    </article>
+
+    <!-- DAY 3 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>3</div>
+        <div class="day-title"><h2 data-en="Khao Kho · temples &amp; views">เขาค้อ · วัด &amp; วิว</h2>
+          <div class="leg" data-en="Easy day · early fog, then sights near your base">วันชิล ๆ · ตื่นเช้าดูทะเลหมอก แล้วเที่ยวใกล้ที่พัก</div></div></div>
+
+      <div class="stop"><div class="ic see">🌅</div><div class="stop-body">
+        <div class="when" data-en="6:00 AM">6:00 เช้า</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.6389992,100.996427" data-en="Sea of fog: Khao Kho Viewpoint / Post Office">ทะเลหมอก: จุดชมวิวเขาค้อ / ลานไปรษณีย์</a></h3>
+        <p data-en="In the rainy season fog appears most days when humidity is high and wind is calm. Arrive before 6 for parking; fog rolls in around 6:15.">หน้าฝนมีลุ้นทะเลหมอกเกือบทุกวันที่ความชื้นสูง–ลมนิ่ง มาก่อน 6 โมงหาที่จอดง่าย หมอกเริ่มมาราว 6:15</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic see">🛕</div><div class="stop-body">
+        <div class="when" data-en="Late morning">สาย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.790141,101.0509634" data-en="Wat Phra That Pha Sorn Kaew">วัดพระธาตุผาซ่อนแก้ว</a></h3>
+        <p data-en="One of Thailand's most beautiful mosaic temples on the mountain — five white Buddhas facing the hills, intricate tile work (open 6 AM on weekends).">วัดโมเสกบนเขาที่สวยติดอันดับของไทย พระพุทธรูปขาว 5 องค์หันหน้าสู่ขุนเขา รายละเอียดกระเบื้องล้านชิ้น (ส.–อา. เปิด 6 โมง)</p>
+        <div class="stop-meta"><span class="rate">★ 4.7</span></div></div></div>
+
+      <div class="stop"><div class="ic cafe">☕</div><div class="stop-body">
+        <div class="when" data-en="Lunch / coffee">กลางวัน / กาแฟ</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.7951378,101.041849" data-en="Pino Latte Café">Pino Latte Café</a></h3>
+        <p data-en="The legendary mountain-view café next to Pha Sorn Kaew — good French toast, killer Thai-tea×espresso (crowded on weekends).">คาเฟ่วิวภูเขาในตำนาน อยู่ติดวัดผาซ่อนแก้ว เฟรนช์โทสต์อร่อย ชาไทย×เอสเพรสโซเด็ด (วันหยุดคนเยอะ)</p>
+        <div class="stop-meta"><span class="rate">★ 4.4</span></div></div></div>
+
+      <div class="stop"><div class="ic see">🌄</div><div class="stop-body">
+        <div class="when" data-en="Evening">เย็น</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.5848383,100.9318226" data-en="Khao Takhian Ngo Viewpoint">จุดชมวิวเขาเตี้ยงโง้ (Khao Takhian Ngo)</a></h3>
+        <p data-en="A 360° viewpoint overlooking the winding roads below — good for both sunrise and sunset, and not crowded.">วิว 360° เห็นถนนคดเคี้ยวเบื้องล่าง ดูได้ทั้งพระอาทิตย์ขึ้น–ตก คนไม่พลุกพล่าน</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body"><div class="when" data-en="Night 3">พักคืนที่ 3</div><h3 data-en="Same Khao Kho stay">ที่พักเขาค้อ (เดิม)</h3></div></div>
+    </article>
+
+    <!-- DAY 4 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>4</div>
+        <div class="day-title"><h2 data-en="Phu Thap Boek · full nature day">ภูทับเบิก · วันธรรมชาติเต็ม</h2>
+          <div class="leg" data-en="~1–1.5 hr from Khao Kho · highest point in Phetchabun ~1,768 m">~1–1.5 ชม. จากเขาค้อ · จุดสูงสุดเพชรบูรณ์ ~1,768 ม.</div></div></div>
+
+      <div class="stop"><div class="ic see">🌄</div><div class="stop-body">
+        <div class="when" data-en="4–5 AM">ตี 4–5</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.8965537,101.1059998" data-en="Phu Thap Boek — sunrise / sea of fog">ภูทับเบิก — พระอาทิตย์ขึ้น / ทะเลหมอก</a></h3>
+        <p data-en="Drive to the summit for sea of fog above lush green cabbage fields — one of Thailand's finest views.">ขับขึ้นจุดสูงสุด ชมทะเลหมอกเหนือทุ่งกะหล่ำปลีเขียวขจี — วิวสวยที่สุดมุมหนึ่งของไทย</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div>
+        <div class="warn" data-en="⚠️ In the rainy season the road is steep, winding and slippery — drive slow, use low gear downhill. Check the forecast: heavy rain can make the fog too thick to see the view.">⚠️ หน้าฝนถนนชันคดเคี้ยวและลื่น ขับช้า ๆ ใช้เกียร์ต่ำตอนลง · เช็กพยากรณ์ก่อน ถ้าฝนหนักหมอกอาจทึบจนมองไม่เห็นวิว</div></div></div>
+
+      <div class="stop"><div class="ic cafe">☕</div><div class="stop-body">
+        <div class="when" data-en="Late morning">สาย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.685886,100.9937042" data-en="Mount-Berg Coffee &amp; Tea">Mount-Berg Coffee &amp; Tea</a></h3>
+        <p data-en="A tiny café with wind-turbine views, top ratings, lovely green tea, and a friendly owner.">คาเฟ่เล็กวิวกังหันลม เรตติ้งสูงปรี๊ด ชาเขียวเด็ด เจ้าของน่ารักเป็นกันเอง</p>
+        <div class="stop-meta"><span class="rate">★ 4.9</span></div></div></div>
+
+      <div class="stop"><div class="ic eat">🍽️</div><div class="stop-body">
+        <div class="when" data-en="Evening">เย็น</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.6406163,100.9935402" data-en="Glamping Restaurant at Khaokho">Glamping Restaurant at Khaokho</a></h3>
+        <p data-en="Surprisingly good food up here, tasteful decor and great views — pork burger, chicken katsu curry, tempting cakes (service charge + VAT apply).">อาหารดีเกินคาดบนเขา ตกแต่งสวย วิวดี — เบอร์เกอร์หมู ข้าวแกงกะหรี่ไก่ เค้กน่ากิน (มี service charge+VAT)</p>
+        <div class="stop-meta"><span class="rate">★ 4.8</span></div>
+        <div class="alt-pick" data-en="Panoramic wind-turbine views: <b>Loy Rhom Khao Kho</b> (shuttle fee up to the viewpoint) ★ 4.5">วิวพาโนรามากังหันลม: <b>Loy Rhom Khao Kho</b> (มีค่ารถรับส่งขึ้นจุดชมวิว) ★ 4.5</div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body"><div class="when" data-en="Night 4">พักคืนที่ 4</div><h3 data-en="Same Khao Kho stay">ที่พักเขาค้อ (เดิม)</h3></div></div>
+    </article>
+
+    <!-- DAY 5 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>5</div>
+        <div class="day-title"><h2 data-en="Khao Kho · history &amp; cute spots">เขาค้อ · ประวัติศาสตร์ &amp; จุดน่ารัก</h2>
+          <div class="leg" data-en="Catch-up day · pine forest, wind turbines, sheep farm">วันเก็บตก · ป่าสน กังหันลม ฟาร์มแกะ</div></div></div>
+
+      <div class="stop"><div class="ic see">🎖️</div><div class="stop-body">
+        <div class="when" data-en="Morning">เช้า</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.614959,100.9856128" data-en="Khao Kho Sacrifice Memorial">อนุสรณ์สถานผู้เสียสละเขาค้อ</a></h3>
+        <p data-en="Mountain views plus war history — tanks, a helicopter and bunkers to explore, free entry (near the weapons museum).">วิวขุนเขา + ประวัติศาสตร์สงคราม มีรถถัง/เฮลิคอปเตอร์ บังเกอร์ให้เดินชม เข้าฟรี (ใกล้พิพิธภัณฑ์อาวุธ)</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic see">🌲</div><div class="stop-body">
+        <div class="when" data-en="Late morning">สาย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.5530175,100.9759956" data-en="Khao Kho Royal Palace">พระตำหนักเขาค้อ</a></h3>
+        <p data-en="Tall pines and cool air, an easy stroll, with a photogenic view swing. The road up is a little steep.">ป่าสนสูง อากาศเย็นสบาย เดินเล่นชิล ๆ มีชิงช้าวิวสวยถ่ายรูปได้ ทางขึ้นชันนิดหน่อย</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic see">🌼</div><div class="stop-body">
+        <div class="when" data-en="Afternoon">บ่าย</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.686239,100.9925384" data-en="Khao Kho Wind Farm + flower gardens">ทุ่งกังหันลมเขาค้อ + สวนดอกไม้</a></h3>
+        <p data-en="Photograph giant turbines amid flower fields; archery / ATV available (tram/entry fees). Best in the late-afternoon light.">ถ่ายรูปกังหันลมยักษ์กลางทุ่งดอกไม้ มีกิจกรรมยิงธนู/ATV (มีค่ารถราง/ค่าเข้า) แนะนำช่วงเย็นแสงสวย</p>
+        <div class="stop-meta"><span class="rate">★ 4.4</span></div></div></div>
+
+      <div class="stop"><div class="ic cafe">🐑</div><div class="stop-body">
+        <div class="when" data-en="Late afternoon">บ่ายแก่</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.5883808,100.9902789" data-en="Monkae Sheep Farm Khao Kho">ม่อนแกะ เขาค้อ (Monkae)</a></h3>
+        <p data-en="Cute sheep farm — feed them and take photos, with a mountain-view café. Great for couple shots (~100฿).">ฟาร์มแกะน่ารักให้อาหาร+ถ่ายรูป มีคาเฟ่วิวเขา เหมาะถ่ายรูปคู่ (ค่าเข้า ~100฿)</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body"><div class="when" data-en="Night 5 (last on the mountain)">พักคืนที่ 5 (คืนสุดท้ายบนเขา)</div><h3 data-en="Same Khao Kho stay">ที่พักเขาค้อ (เดิม)</h3></div></div>
+    </article>
+
+    <!-- DAY 6 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>6</div>
+        <div class="day-title"><h2 data-en="Khao Kho → Nakhon Sawan">เขาค้อ → นครสวรรค์</h2>
+          <div class="leg" data-en="~190 km · drive <b>~3.5 hr</b> via Hwy 225 · a different city, no backtracking">~190 กม. · ขับ <b>~3.5 ชม.</b> ทางหลวง 225 · เมืองใหม่ ไม่ย้อนทาง</div></div></div>
+
+      <div class="stop"><div class="ic see">🛕</div><div class="stop-body">
+        <div class="when" data-en="Late afternoon">บ่ายแก่</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.7150663,100.133788" data-en="Wat Khao Khop (viewpoint)">วัดเขากบ (จุดชมวิว)</a></h3>
+        <p data-en="Hilltop temple with a 360° view over Nakhon Sawan — drive up or climb the stairs. Lovely at sunset.">วัดบนเขา วิว 360° เห็นเมืองนครสวรรค์ทั้งเมือง ขับขึ้นหรือเดินบันไดก็ได้ สวยช่วงพระอาทิตย์ตก</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic see">🌅</div><div class="stop-body">
+        <div class="when" data-en="Sunset">พระอาทิตย์ตก</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.70132,100.1427158" data-en="Pasaan — Origin of the Chao Phraya River">ต้นแม่น้ำเจ้าพระยา (ปากน้ำโพ)</a></h3>
+        <p data-en="Where the Ping and Nan rivers meet to form the Chao Phraya — striking architecture, beautiful at golden hour.">จุดที่แม่น้ำปิงและน่านมาบรรจบเป็นเจ้าพระยา สถาปัตยกรรมสวย ถ่ายรูปสวยช่วงแสงเย็น</p>
+        <div class="stop-meta"><span class="rate">★ 4.5</span></div></div></div>
+
+      <div class="stop"><div class="ic eat">🍽️</div><div class="stop-body">
+        <div class="when" data-en="Dinner">เย็น</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.7068517,100.1464231" data-en="Seng Ha Café &amp; Bistro">เซ่งฮะ Café &amp; Bistro</a></h3>
+        <p data-en="Big riverside spot on the Chao Phraya with live music — relaxed dinner by the water.">ร้านริมน้ำเจ้าพระยาขนาดใหญ่ มีดนตรีสด นั่งกินข้าวเย็นริมน้ำชิล ๆ</p>
+        <div class="stop-meta"><span class="rate">★ 4.4</span></div>
+        <div class="alt-pick" data-en="Local riverside Thai: <b>E-Taen Riverside</b> — fresh, tasty, friendly (★ 4.4)">อาหารไทยริมน้ำ: <b>ร้านอีแต๋นริเวอร์ไซด์</b> — สด อร่อย เป็นกันเอง (★ 4.4)</div></div></div>
+
+      <div class="stop"><div class="ic stay">🏨</div><div class="stop-body"><div class="when" data-en="Night 6">พักคืนที่ 6</div><h3 data-en="Stay in Nakhon Sawan">ที่พักนครสวรรค์</h3><p data-en="See option below (The Paradiso JK Design Hotel).">ดูตัวเลือกด้านล่าง (The Paradiso JK Design Hotel)</p></div></div>
+    </article>
+
+    <!-- DAY 7 -->
+    <article class="day">
+      <div class="day-head"><div class="daynum"><span>DAY</span>7</div>
+        <div class="day-title"><h2 data-en="Nakhon Sawan → Bangkok">นครสวรรค์ → กรุงเทพฯ</h2>
+          <div class="leg" data-en="~240 km · drive <b>~3 hr</b> via Hwy 32 · home 🏠">~240 กม. · ขับ <b>~3 ชม.</b> ทางหลวง 32 · กลับบ้าน 🏠</div></div></div>
+
+      <div class="stop"><div class="ic cafe">☕</div><div class="stop-body">
+        <div class="when" data-en="Morning">เช้า</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.6976258,100.1233518" data-en="Tissue Papers Cafe">Tissue Papers Cafe</a></h3>
+        <p data-en="Arguably the best coffee in Nakhon Sawan — go for the special beans, solid desserts, plenty of parking.">คาเฟ่กาแฟดีที่สุดในนครสวรรค์ (มีดราม่ากันเลย) ลองเมล็ดพิเศษ ขนมอร่อย ที่จอดเยอะ</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div>
+        <div class="alt-pick" data-en="In-house roaster + sourdough: <b>BLESS Coffee Roasters</b> (closed Sun) ★ 4.6">โรงคั่วเอง + ซาวร์โดว์: <b>BLESS Coffee Roasters</b> (ปิดอาทิตย์) ★ 4.6</div></div></div>
+
+      <div class="stop"><div class="ic see">🐟</div><div class="stop-body">
+        <div class="when" data-en="Before leaving (optional)">ก่อนกลับ (ถ้ามีเวลา)</div>
+        <h3><a class="placelink" target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.6978375,100.1354791" data-en="Klong Yuan Chuanrak (feed koi)">คลองญวน ชวนรัก (ให้อาหารปลา)</a></h3>
+        <p data-en="Free, easygoing riverside spot to feed hundreds of koi — a calm last stop before the drive south.">จุดริมน้ำให้อาหารปลาคาร์ปนับร้อยตัว เข้าฟรี แวะชิล ๆ ก่อนขับลงใต้</p>
+        <div class="stop-meta"><span class="rate">★ 4.6</span></div></div></div>
+
+      <div class="stop"><div class="ic stay">🚗</div><div class="stop-body">
+        <div class="when" data-en="Late morning">สาย</div>
+        <h3 data-en="Drive home">ขับกลับบ้าน</h3>
+        <p data-en="Head south on Hwy 32 mid-morning to avoid the evening traffic.">ออกเดินทางช่วงสายทางหลวง 32 เลี่ยงรถติดตอนเย็น</p></div></div>
+    </article>
+
+  </main>
+
+  <!-- STAYS -->
+  <section class="block">
+    <h2 data-en="Accommodation options">ตัวเลือกที่พัก</h2>
+    <p class="sub" data-en="Pick whatever suits — mid to high budget. Mid-July is green season, so rates are usually lower and booking is easier, but reserve mountain-view rooms early for weekends.">เลือกได้ตามใจ — งบกลางถึงหรู กลางก.ค. เป็นช่วงกรีนซีซัน ราคามักถูกลงและจองง่าย แต่ห้องวิวภูเขาช่วงสุดสัปดาห์ควรจองล่วงหน้า</p>
+
+    <div class="stay-group">
+      <h4 data-en="Lop Buri · nights 1">ลพบุรี · คืนที่ 1</h4>
+      <div class="cards">
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.792687,100.6802599" data-en="DadD Resort by Lopburi Inn">DadD Resort by Lopburi Inn</a></h5>
+          <p data-en="Lush garden, quiet and private, with a pool, near food.">สวนต้นไม้ดอกไม้เยอะ เงียบสงบ ส่วนตัวสูง มีสระว่ายน้ำ ใกล้ร้านอาหาร</p>
+          <div class="stop-meta"><span class="rate">★ 4.7</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.7926788,100.6804591" data-en="Lopburi Inn Resort">Lopburi Inn Resort</a></h5>
+          <p data-en="Classic resort, big pool, spacious rooms, good value.">รีสอร์ตคลาสสิก สระว่ายน้ำใหญ่ ห้องกว้าง ทำเลดี คุ้มราคา</p>
+          <div class="stop-meta"><span class="rate">★ 4.0</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=14.8114458,100.6406387" data-en="Lopburi Palm Resort">Lopburi Palm Resort</a></h5>
+          <p data-en="Private cabins in a palm garden, quiet, clean, parking at the door.">กระท่อมส่วนตัวกลางสวนปาล์ม เงียบ สะอาด มีที่จอดรถหน้าห้อง</p>
+          <div class="stop-meta"><span class="rate">★ 4.3</span></div></div>
+      </div>
+    </div>
+
+    <div class="stay-group">
+      <h4 data-en="Khao Kho · nights 2–5">เขาค้อ · คืนที่ 2–5</h4>
+      <div class="cards">
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.6471115,100.9997834" data-en="The Sense Resort Khao Kho">The Sense Resort Khao Kho</a></h5>
+          <p data-en="Upscale, great views, wide balconies, some rooms with mountain-view jacuzzi, excellent service.">หรู วิวสวย ระเบียงกว้าง บางห้องมีอ่างจากุซซี่วิวเขา บริการเยี่ยมตั้งแต่ที่จอดรถ</p>
+          <div class="stop-meta"><span class="rate">★ 4.6</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.7794361,101.0198287" data-en="The Blue Sky Resort">The Blue Sky Resort</a></h5>
+          <p data-en="European style, pretty gardens, lots of photo spots, big resort with internal shuttle — good for couples/families.">สไตล์ยุโรป สวนสวย จุดถ่ายรูปเยอะ รีสอร์ตใหญ่มีรถรับส่งภายใน เหมาะคู่รัก/ครอบครัว</p>
+          <div class="stop-meta"><span class="rate">★ 4.5</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.7953714,101.0415337" data-en="Pino Latte Hotel">Pino Latte Hotel</a></h5>
+          <p data-en="Stunning views next to Pha Sorn Kaew, Nordic-style buildings, mountain-view pool (chilly), walk to the café.">วิวสุดปังข้างวัดผาซ่อนแก้ว ตึกสไตล์นอร์ดิก สระว่ายน้ำวิวเขา (น้ำเย็น) เดินไปคาเฟ่ได้</p>
+          <div class="stop-meta"><span class="rate">★ 4.5</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=16.6859701,101.0193981" data-en="Khao Kho Mountain View">Khao Kho Mountain View</a></h5>
+          <p data-en="Small, great value, nice view, tasty breakfast, high rating — good for a relaxed couple.">เล็ก คุ้มราคา วิวดี อาหารเช้าอร่อย เรตติ้งสูง เหมาะคู่ที่อยากชิล</p>
+          <div class="stop-meta"><span class="rate">★ 4.8</span></div></div>
+      </div>
+    </div>
+
+    <div class="stay-group">
+      <h4 data-en="Nakhon Sawan · night 6">นครสวรรค์ · คืนที่ 6</h4>
+      <div class="cards">
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.7037185,100.1212272" data-en="The Paradiso JK Design Hotel">The Paradiso JK Design Hotel</a></h5>
+          <p data-en="Smart, recently renovated design hotel, central location, good breakfast and restaurant, easy parking.">โรงแรมดีไซน์ รีโนเวตใหม่ ทำเลกลางเมือง อาหารเช้า/ห้องอาหารดี ที่จอดสะดวก</p>
+          <div class="stop-meta"><span class="rate">★ 4.3</span></div></div>
+        <div class="card"><h5><a target="_blank" href="https://www.google.com/maps/search/?api=1&amp;query=15.6981405,100.1284405" data-en="PA Place Hotel (budget alt)">PA Place Hotel (ตัวเลือกประหยัด)</a></h5>
+          <p data-en="Cheap, central, clean enough, next to a big lakeside park — fine for a one-night stop.">ประหยัด กลางเมือง สะอาดพอใช้ ติดสวนสาธารณะริมบึง เหมาะพักผ่านคืนเดียว</p>
+          <div class="stop-meta"><span class="rate">★ 4.0</span></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOG TIPS -->
+  <section class="foglist">
+    <h2 data-en="Sea-of-fog tips (rainy season)">เคล็ดลับล่าทะเลหมอก (หน้าฝน)</h2>
+    <ul>
+      <li data-en="Check the forecast the night before — rain in the evening/night followed by a calm dawn = high chance of fog.">เช็กพยากรณ์คืนก่อน — วันที่ฝนตกตอนเย็น/กลางคืนแล้วเช้ามืดลมนิ่ง โอกาสเจอหมอกสูง</li>
+      <li data-en="Leave by 5:45 AM to reach the viewpoint before 6 (easy parking); fog usually rolls in 6:00–7:30.">ออกจากที่พักก่อน 5:45 น. ถึงจุดชมวิวก่อน 6 โมง หาที่จอดง่าย หมอกมักมาช่วง 6:00–7:30</li>
+      <li data-en="Too much rain = fog too thick to see; no rain at all = little fog. &quot;Moderate rain&quot; is the sweet spot.">ฝนหนักเกิน = หมอกทึบจนมองไม่เห็นวิว / ไม่มีฝนเลย = ไม่ค่อยมีหมอก — &quot;ฝนพอประมาณ&quot; คือกำลังดี</li>
+      <li data-en="Bring a windbreaker/umbrella and non-slip shoes, and fill the tank before heading up Phu Thap Boek.">พกเสื้อกันลม/ร่ม รองเท้ากันลื่น และน้ำมันรถเต็มถังก่อนขึ้นภูทับเบิก</li>
+    </ul>
+  </section>
+
+  <!-- IMPORT -->
+  <section class="info">
+    <h2 data-en="Import all pins into Google My Maps">นำหมุดทั้งหมดเข้า Google My Maps</h2>
+    <p data-en="Use the attached khaokho_trip.kml — pins are pre-split into 4 colour-coded categories.">ใช้ไฟล์ <code>khaokho_trip.kml</code> ที่แนบมา หมุดถูกแยกเป็น 4 หมวดสีไว้ให้แล้ว</p>
+    <div class="map-steps">
+      <div class="step"><span class="n"></span><div data-en="Open <code>mymaps.google.com</code> → <b>Create a new map</b>">เปิด <code>mymaps.google.com</code> → กด <b>สร้างแผนที่ใหม่</b></div></div>
+      <div class="step"><span class="n"></span><div data-en="In the layer box, click <b>Import</b> → choose <code>khaokho_trip.kml</code>">ในกล่องเลเยอร์ กด <b>นำเข้า (Import)</b> → เลือกไฟล์ <code>khaokho_trip.kml</code></div></div>
+      <div class="step"><span class="n"></span><div data-en="To colour by type, set <b>Style by ▸ category</b> in the layer panel">ถ้าอยากแยกสีตามหมวด เลือก <b>จัดรูปแบบตาม &quot;หมวด&quot;</b> (Style by ▸ หมวด) ในแผงเลเยอร์</div></div>
+      <div class="step"><span class="n"></span><div data-en="Name the map, then navigate from the Google Maps mobile app">ตั้งชื่อแผนที่ แล้วใช้นำทางผ่านแอป Google Maps บนมือถือได้เลย</div></div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="hr"></div>
+    <span data-en="Enjoy the trip — this plan is flexible: add/drop days or swap stops as you like.">เที่ยวให้สนุกนะครับ — แผนนี้ยืดหยุ่นได้ ปรับเพิ่ม–ลดวันหรือสลับจุดได้ตามใจ</span><br>
+    <span data-en="Place info / ratings from Google Maps · may change, check opening hours before you go.">ข้อมูลร้าน/ที่พัก/เรตติ้งจาก Google Maps · อาจเปลี่ยนแปลงได้ ตรวจเวลาเปิด–ปิดก่อนไป</span>
+  </footer>
+
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+/* ---------- i18n ---------- */
+function setLang(lang){
+  document.documentElement.lang = lang;
+  document.querySelectorAll('[data-en]').forEach(el=>{
+    if(el._th === undefined) el._th = el.innerHTML;
+    el.innerHTML = (lang==='en') ? el.getAttribute('data-en') : el._th;
+  });
+  document.querySelectorAll('.langbtn').forEach(b=>b.classList.toggle('on', b.dataset.lang===lang));
+  if(window.__markers){ window.__markers.forEach(m=> m.setPopupContent(m.__pp[lang]) ); }
+}
+
+/* ---------- reveal ---------- */
+const io = new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+document.querySelectorAll('.day').forEach(d=>io.observe(d));
+
+/* ---------- map ---------- */
+const CAT = {
+  see:{color:'#2e8b57', th:'จุดเที่ยว / ถ่ายรูป', en:'Sight / photo'},
+  eat:{color:'#df7a4d', th:'ร้านอาหาร', en:'Restaurant'},
+  cafe:{color:'#b8860b', th:'คาเฟ่', en:'Café'},
+  stay:{color:'#3a6ea5', th:'ที่พัก', en:'Stay'}
+};
+const PLACES = [
+  // sights
+  ['see','พระปรางค์สามยอด','Phra Prang Sam Yot',14.8029471,100.6140415],
+  ['see','วัดพระศรีรัตนมหาธาตุ','Wat Phra Si Rattana Mahathat',14.7986781,100.614761],
+  ['see','อุทยานประวัติศาสตร์ศรีเทพ','Si Thep Historical Park',15.4715661,101.1469033],
+  ['see','วัดพระธาตุผาซ่อนแก้ว','Wat Pha Sorn Kaew',16.790141,101.0509634],
+  ['see','จุดชมวิวเขาค้อ','Khao Kho Viewpoint',16.6300034,100.9954175],
+  ['see','ลานไปรษณีย์เขาค้อ','Khao Kho Post Office Viewpoint',16.6389992,100.996427],
+  ['see','จุดชมวิวเขาเตี้ยงโง้','Khao Takhian Ngo Viewpoint',16.5848383,100.9318226],
+  ['see','ภูทับเบิก','Phu Thap Boek',16.8965537,101.1059998],
+  ['see','จุดชมวิวภูทับเบิก','Phu Thap Boek Viewpoint',16.8767118,101.1082658],
+  ['see','ทุ่งกังหันลมเขาค้อ','Khao Kho Wind Farm',16.686239,100.9925384],
+  ['see','อนุสรณ์สถานผู้เสียสละเขาค้อ','Khao Kho Sacrifice Memorial',16.614959,100.9856128],
+  ['see','พระตำหนักเขาค้อ','Khao Kho Royal Palace',16.5530175,100.9759956],
+  ['see','ม่อนแกะ เขาค้อ','Monkae Sheep Farm',16.5883808,100.9902789],
+  ['see','วัดเขากบ (จุดชมวิว)','Wat Khao Khop (viewpoint)',15.7150663,100.133788],
+  ['see','ต้นแม่น้ำเจ้าพระยา (ปากน้ำโพ)','Origin of the Chao Phraya River',15.70132,100.1427158],
+  ['see','คลองญวน ชวนรัก','Klong Yuan Chuanrak (koi)',15.6978375,100.1354791],
+  // eat
+  ['eat','เพาะรัก (Natural Life)','Natural Life (Pho Rak)',14.7999157,100.6696454],
+  ['eat','ATLAS House','ATLAS House',14.7948547,100.6366096],
+  ['eat','Kansai Izakaya','Kansai Izakaya',14.7933207,100.6693246],
+  ['eat','ครัวเขาค้อ','Krua Khao Kho',16.7695286,101.0443973],
+  ['eat','Glamping Restaurant','Glamping Restaurant Khaokho',16.6406163,100.9935402],
+  ['eat','Loy Rhom Khao Kho','Loy Rhom Khao Kho',16.7183062,101.0026115],
+  ['eat','ร้านอีแต๋นริเวอร์ไซด์','E-Taen Riverside',15.7110133,100.1478615],
+  ['eat','เซ่งฮะ Café & Bistro','Seng Ha Café & Bistro',15.7068517,100.1464231],
+  // cafe
+  ['cafe','SRiiNTRA Specialty Coffee','SRiiNTRA Specialty Coffee',14.8017588,100.6143046],
+  ['cafe','H CRAFT Slow Bar','H CRAFT Slow Bar',14.8232801,100.6302222],
+  ['cafe','Pino Latte Café','Pino Latte Café',16.7951378,101.041849],
+  ['cafe','Mount-Berg Coffee & Tea','Mount-Berg Coffee & Tea',16.685886,100.9937042],
+  ['cafe','CUP CRAFT Route 12','CUP CRAFT Khao Kho Route 12',16.7911205,100.9870216],
+  ['cafe','Tissue Papers Cafe','Tissue Papers Cafe',15.6976258,100.1233518],
+  ['cafe','BLESS Coffee Roasters','BLESS Coffee Roasters',15.6941059,100.1269842],
+  ['cafe','EDEN Cafe','EDEN Cafe',15.7188151,100.1159862],
+  // stay
+  ['stay','DadD Resort by Lopburi Inn','DadD Resort by Lopburi Inn',14.792687,100.6802599],
+  ['stay','Lopburi Inn Resort','Lopburi Inn Resort',14.7926788,100.6804591],
+  ['stay','Lopburi Palm Resort','Lopburi Palm Resort',14.8114458,100.6406387],
+  ['stay','The Sense Resort Khao Kho','The Sense Resort Khao Kho',16.6471115,100.9997834],
+  ['stay','The Blue Sky Resort','The Blue Sky Resort Khao Kho',16.7794361,101.0198287],
+  ['stay','Pino Latte Hotel','Pino Latte Hotel',16.7953714,101.0415337],
+  ['stay','Khao Kho Mountain View','Khao Kho Mountain View',16.6859701,101.0193981],
+  ['stay','The Paradiso JK Design Hotel','The Paradiso JK Design Hotel',15.7037185,100.1212272]
+];
+// driving waypoints (lng,lat): BKK -> Lopburi -> Si Thep -> Khao Kho -> Nakhon Sawan -> BKK
+const WP = [[100.5018,13.7563],[100.6140,14.8029],[101.1469,15.4716],[101.0510,16.7901],[100.1372,15.7127],[100.5018,13.7563]];
+
+(function initMap(){
+  if(typeof L === 'undefined'){ document.getElementById('map').innerHTML='<div style="padding:20px;font-family:sans-serif;color:#42554e">แผนที่โหลดไม่สำเร็จ — ต้องต่ออินเทอร์เน็ต (Map needs an internet connection)</div>'; return; }
+  const map = L.map('map',{scrollWheelZoom:false}).setView([15.9,100.7],7);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+    attribution:'&copy; OpenStreetMap &copy; CARTO', subdomains:'abcd', maxZoom:19
+  }).addTo(map);
+
+  const markers=[]; const bounds=L.latLngBounds();
+  PLACES.forEach(p=>{
+    const [cat,th,en,lat,lng]=p;
+    const c=CAT[cat];
+    const m=L.circleMarker([lat,lng],{radius:7,color:'#fff',weight:2,fillColor:c.color,fillOpacity:1}).addTo(map);
+    const url='https://www.google.com/maps/search/?api=1&query='+lat+','+lng;
+    m.__pp={
+      th:'<b>'+th+'</b><br><span class="pp-cat">'+c.th+'</span><br><a href="'+url+'" target="_blank">เปิดใน Google Maps ↗</a>',
+      en:'<b>'+en+'</b><br><span class="pp-cat">'+c.en+'</span><br><a href="'+url+'" target="_blank">Open in Google Maps ↗</a>'
+    };
+    m.bindPopup(m.__pp[document.documentElement.lang==='en'?'en':'th']);
+    markers.push(m); bounds.extend([lat,lng]);
+  });
+  window.__markers=markers;
+
+  function drawStraight(){
+    const ll=WP.map(w=>[w[1],w[0]]);
+    L.polyline(ll,{color:'#2b4a3e',weight:3,opacity:.7,dashArray:'7 7'}).addTo(map);
+  }
+  // try real driving geometry from OSRM, fall back to straight dashed line
+  const coordStr=WP.map(w=>w[0]+','+w[1]).join(';');
+  fetch('https://router.project-osrm.org/route/v1/driving/'+coordStr+'?overview=full&geometries=geojson')
+    .then(r=>r.ok?r.json():Promise.reject())
+    .then(d=>{
+      const g=d&&d.routes&&d.routes[0]&&d.routes[0].geometry;
+      if(!g) throw 0;
+      const ll=g.coordinates.map(c=>[c[1],c[0]]);
+      L.polyline(ll,{color:'#ffffff',weight:7,opacity:.9}).addTo(map);
+      L.polyline(ll,{color:'#2b4a3e',weight:4,opacity:.9}).addTo(map);
+    })
+    .catch(()=>drawStraight());
+
+  map.fitBounds(bounds.pad(0.12));
+  map.on('click',()=>{ if(!map.scrollWheelZoomEnabled()){ map.scrollWheelZoom.enable(); } });
+})();
+</script>
+</body>
+</html>
